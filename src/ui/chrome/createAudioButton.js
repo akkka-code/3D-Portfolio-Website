@@ -135,7 +135,16 @@ export function createAudioButton({ urls = DEFAULT_URLS, url } = {}) {
   }
 
   function startOnFirstInteraction(event) {
-    if (event.target?.closest?.("#buttonAudio")) {
+    if (
+      event.target?.closest?.("#buttonAudio") ||
+      event.target?.closest?.("#sn-audio-toggle") ||
+      event.target?.closest?.("#sn-promo-video")
+    ) {
+      return;
+    }
+    const promoVid = document.getElementById("sn-promo-video");
+    if (promoVid && !promoVid.paused) {
+      removeInteractionListeners();
       return;
     }
 
@@ -143,6 +152,10 @@ export function createAudioButton({ urls = DEFAULT_URLS, url } = {}) {
   }
 
   function handleFocus() {
+    const promoVid = document.getElementById("sn-promo-video");
+    if (promoVid && !promoVid.paused) {
+      return;
+    }
     if (wasMusicPlaying) {
       play().catch(() => {});
     }

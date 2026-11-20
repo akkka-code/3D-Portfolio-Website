@@ -661,6 +661,7 @@ export function createPortfolioUI({
 
     caseModal.classList.add("is-open");
     caseBodyEl.scrollTop = 0;
+    world?.projectScreens?.setPaused?.(true);
 
     caseBodyEl.querySelector("#sn-case-prev")?.addEventListener("click", () => {
       openCaseStudy(activeCaseStudyIndex - 1);
@@ -675,6 +676,9 @@ export function createPortfolioUI({
     caseModal.classList.remove("is-open");
     const vid = caseBodyEl.querySelector("video");
     vid?.pause?.();
+    if (!promoVideoEl || promoVideoEl.paused) {
+      world?.projectScreens?.setPaused?.(false);
+    }
   }
 
   caseModal.querySelector("#sn-case-close").addEventListener("click", closeCaseStudy);
@@ -1103,11 +1107,12 @@ export function createPortfolioUI({
     refreshWorksView();
   });
 
-  // Promo Video Auto-Duck / Pause Background Music so audio never overlaps
+  // Promo Video Auto-Duck / Pause Background Music & 3D Alley Video Decoders so video never lags or overlaps
   const promoVideoEl = scrollViewport.querySelector("#sn-promo-video");
   let wasBgMusicPlayingBeforePromo = false;
 
   promoVideoEl?.addEventListener("play", () => {
+    world?.projectScreens?.setPaused?.(true);
     if (getIsMusicPlaying()) {
       wasBgMusicPlayingBeforePromo = true;
       appShell?.audioButton?.pause?.();
@@ -1116,6 +1121,9 @@ export function createPortfolioUI({
   });
 
   function onPromoStop() {
+    if (activeCaseStudyIndex === -1) {
+      world?.projectScreens?.setPaused?.(false);
+    }
     if (wasBgMusicPlayingBeforePromo) {
       wasBgMusicPlayingBeforePromo = false;
       appShell?.audioButton?.play?.()?.catch?.(() => {});

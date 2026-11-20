@@ -396,6 +396,18 @@ export function createProjectScreens({ scene }) {
   }
 
   let accumTime = 0;
+  let forcePaused = false;
+
+  function setPaused(paused) {
+    forcePaused = Boolean(paused);
+    if (forcePaused) {
+      for (const entry of screenEntries) {
+        if (!entry.video.paused) {
+          entry.video.pause();
+        }
+      }
+    }
+  }
 
   function update(delta, camera) {
     accumTime += delta;
@@ -408,7 +420,7 @@ export function createProjectScreens({ scene }) {
     }
 
     // Ensure nearby project videos stay playing smoothly while distant ones pause to save GPU decode
-    if (!camera) return;
+    if (!camera || forcePaused) return;
     for (const entry of screenEntries) {
       const dist = camera.position.distanceTo(entry.worldPos);
       if (dist < 26) {
@@ -424,6 +436,7 @@ export function createProjectScreens({ scene }) {
   return {
     group,
     screenEntries,
+    setPaused,
     update,
   };
 }
