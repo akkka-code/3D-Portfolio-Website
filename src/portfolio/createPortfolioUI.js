@@ -97,12 +97,6 @@ export function createPortfolioUI({
       </span>
     </div>
 
-    <div class="sn-telemetry" aria-hidden="true">
-      <span class="sn-telemetry-item">LOC // <strong>KHI 24.86°N</strong></span>
-      <span class="sn-telemetry-item">TIME // <strong id="sn-clock">--:--:-- PKT</strong></span>
-      <span class="sn-telemetry-item">RENDER // <strong id="sn-fps">60 FPS · WEBGPU</strong></span>
-    </div>
-
     <nav class="sn-nav" aria-label="Primary navigation">
       <button type="button" class="sn-nav-link is-active" data-nav-scroll="works" data-cursor="INDEX">Works (${String(projects.length).padStart(2, "0")})</button>
       <button type="button" class="sn-nav-link" data-nav-scroll="lab" data-cursor="REEL">Showreel & 3D Avatar</button>
@@ -226,12 +220,6 @@ export function createPortfolioUI({
            SECTION 00: IMMEDIATE HERO STATEMENT (SAMSY.NINJA FLOW)
            ================================================================= -->
       <section class="sn-hero" id="sn-sec-hero">
-        <div class="sn-hero-top">
-          <span>(00) — CREATIVE GAME DEVELOPER · XR & 3D TECHNOLOGIST</span>
-          <span>NED UNIVERSITY OF ENGINEERING & TECHNOLOGY · GAMING & ANIMATION ’27</span>
-          <span>WEBGPU + TSL REAL-TIME CANVAS ACTIVE</span>
-        </div>
-
         <h1 class="sn-hero-headline" id="sn-hero-headline">
           <span class="sn-hero-line">SYED MUHAMMAD</span>
           <span class="sn-hero-line sn-hero-line--accent">AHMAD — ${escapeHtml(profile.handle)}®</span>
@@ -599,7 +587,6 @@ export function createPortfolioUI({
       <!-- Minimal Creative-Technologist Footer -->
       <footer class="sn-footer">
         <span>© ${new Date().getFullYear()} ${escapeHtml(profile.name)} (${escapeHtml(profile.handle)}®). ALL RIGHTS RESERVED.</span>
-        <span>ENGINEERED WITH THREE.JS WEBGPU · TSL SHADERS · BLENDER 5.1 · GEMINI RAG</span>
         <button type="button" class="sn-nav-btn" data-nav-scroll="hero" data-cursor="TOP">Back to Top ↑</button>
       </footer>
     </div>
@@ -1013,15 +1000,33 @@ export function createPortfolioUI({
     appShell?.virtualJoystick?.setEnabled?.(false);
   }
 
+  const SECTION_ALIAS = {
+    home: "hero",
+    hero: "hero",
+    projects: "works",
+    works: "works",
+    lab: "lab",
+    showreel: "lab",
+    avatar: "lab",
+    about: "about",
+    skills: "about",
+    journey: "about",
+    contact: "contact",
+  };
+
   function scrollToSection(sectionKey) {
     exit3dWalkMode();
-    avatarFocusOverride = sectionKey === "lab";
-    const targetEl = scrollViewport.querySelector(`#sn-sec-${sectionKey}`);
+    const resolved = SECTION_ALIAS[sectionKey] || "works";
+    avatarFocusOverride = resolved === "lab";
+    const targetEl = scrollViewport.querySelector(`#sn-sec-${resolved}`);
     if (targetEl) {
-      targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      const maxScroll = Math.max(0, scrollViewport.scrollHeight - scrollViewport.clientHeight);
+      virtualScrollTarget = clamp(targetEl.offsetTop, 0, maxScroll);
+      virtualScrollCurrent = scrollViewport.scrollTop;
+      isWheelSmoothing = true;
     }
     for (const link of topbar.querySelectorAll(".sn-nav-link")) {
-      link.classList.toggle("is-active", link.dataset.navScroll === sectionKey);
+      link.classList.toggle("is-active", link.dataset.navScroll === resolved);
     }
   }
 
@@ -1067,9 +1072,7 @@ export function createPortfolioUI({
         hoverTitleEl.textContent = proj.title;
         hoverMetaEl.textContent = `${proj.year} // ${(proj.tags || []).slice(0, 2).join(" · ")}`;
 
-        if (proj.poster) {
-          previewPosterImg.src = proj.poster;
-        }
+        previewPosterImg.src = proj.poster || "/video/promo-poster.jpg";
         if (proj.video) {
           if (!previewVideo.src.endsWith(proj.video)) {
             previewVideo.src = proj.video;
@@ -1288,30 +1291,10 @@ export function createPortfolioUI({
   });
 
   // ---------------------------------------------------------------------------
-  // 9. Telemetry Clock + 60fps Animation Loop (Cursor, Distortion Canvas,
+  // 9. 60fps Animation Loop (Cursor, Distortion Canvas,
   //    Scroll-Velocity Kinetic Typography, and 3D WebGPU Camera Choreography)
   // ---------------------------------------------------------------------------
-  const clockEl = topbar.querySelector("#sn-clock");
-  const fpsEl = topbar.querySelector("#sn-fps");
   const heroHeadline = scrollViewport.querySelector("#sn-hero-headline");
-
-  function updateClock() {
-    if (!clockEl) return;
-    try {
-      const fmt = new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Asia/Karachi",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-      }).format(new Date());
-      clockEl.textContent = `${fmt} PKT`;
-    } catch {
-      clockEl.textContent = new Date().toLocaleTimeString();
-    }
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
 
   let lastScrollTop = 0;
   let scrollVelocity = 0;
@@ -1322,15 +1305,17 @@ export function createPortfolioUI({
   let previewX = window.innerWidth * 0.5;
   let previewY = window.innerHeight * 0.5;
   let waveTime = 0;
-  let frameCount = 0;
-  let fpsLastTime = performance.now();
 
   // Desktop inertial wheel smooth scrolling
   scrollViewport.addEventListener(
     "wheel",
     (e) => {
       if (is3dWalkMode || activeCaseStudyIndex !== -1) return;
-      // Allow native scroll inside nested scrollable elements if any
+      // Allow native scroll inside overflowing textarea
+      const ta = e.target?.closest?.("textarea");
+      if (ta && ta.scrollHeight > ta.clientHeight) {
+        return;
+      }
       const maxScroll = Math.max(0, scrollViewport.scrollHeight - scrollViewport.clientHeight);
       if (maxScroll <= 0) return;
       e.preventDefault();
@@ -1372,18 +1357,9 @@ export function createPortfolioUI({
     { passive: true },
   );
 
-  function tick(now) {
+  function tick() {
     requestAnimationFrame(tick);
     waveTime += 0.065;
-
-    // Live FPS readout
-    frameCount++;
-    if (now - fpsLastTime >= 650) {
-      const fps = Math.min(120, Math.round((frameCount * 1000) / (now - fpsLastTime)));
-      if (fpsEl) fpsEl.textContent = `${fps} FPS · WEBGPU`;
-      frameCount = 0;
-      fpsLastTime = now;
-    }
 
     // 1. Custom Magnetic Cursor & Velocity
     pointer.curX = lerp(pointer.curX, pointer.x, 0.24);

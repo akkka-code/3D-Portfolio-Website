@@ -169,11 +169,17 @@ function createClearVideoMaterial(videoUrl, posterUrl, shouldAutoplay = false) {
   if (shouldAutoplay) {
     video.play().catch(() => {});
   } else {
-    // Prime first frame via currentTime seek once metadata arrives
+    // Decode first frame so the 3D hologram screen is never blank from afar, then pause
     video.addEventListener(
-      "loadedmetadata",
+      "loadeddata",
       () => {
-        video.currentTime = 0.5;
+        const p = video.play();
+        if (p?.then) {
+          p.then(() => {
+            video.pause();
+            video.currentTime = Math.min(0.6, video.duration || 0.6);
+          }).catch(() => {});
+        }
       },
       { once: true },
     );

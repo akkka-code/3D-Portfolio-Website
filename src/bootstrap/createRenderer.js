@@ -5,15 +5,19 @@ import {
   disableRendererTimestamps,
 } from "../debug/inspectorControls.js";
 
+const IS_WINDOWS =
+  typeof navigator !== "undefined" && /Win/i.test(navigator.platform || navigator.userAgent || "");
+
 async function getWebGPULimits() {
   if (!navigator.gpu) {
     return {};
   }
 
-  const adapter = await navigator.gpu.requestAdapter({
-    powerPreference: "high-performance",
+  const adapterOptions = {
     featureLevel: "compatibility",
-  });
+    ...(IS_WINDOWS ? {} : { powerPreference: "high-performance" }),
+  };
+  const adapter = await navigator.gpu.requestAdapter(adapterOptions);
   if (!adapter) {
     return {};
   }
@@ -35,7 +39,7 @@ export async function createRenderer() {
   const renderer = new THREE.WebGPURenderer({
     antialias: false,
     alpha: false,
-    powerPreference: "high-performance",
+    ...(IS_WINDOWS ? {} : { powerPreference: "high-performance" }),
     stencil: false,
     requiredLimits,
   });

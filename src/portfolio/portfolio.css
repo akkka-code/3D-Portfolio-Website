@@ -101,9 +101,9 @@ body.sn-peeking-3d .sn-backdrop-vignette {
   right: 0;
   height: 62px;
   z-index: 90;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 24px;
   padding: 0 clamp(18px, 3.2vw, 48px);
   background: var(--sn-bg-elev);

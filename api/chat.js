@@ -9,7 +9,7 @@
  */
 import { sendJson, readJsonBody, getClientIp, createRateLimiter, isOriginAllowed, methodGuard } from "./_lib/http.js";
 import { embedQuery, generate, hasGeminiKey, GEMINI_DEFAULTS } from "./_lib/gemini.js";
-import { search, loadIndex } from "./_lib/retriever.js";
+import { search, loadIndex, tokenize } from "./_lib/retriever.js";
 
 const isLimited = createRateLimiter({ windowMs: 60 * 1000, max: 20 });
 
@@ -24,6 +24,19 @@ const LANGUAGE_NAMES = {
   zh: "Chinese (Simplified)",
   tr: "Turkish",
 };
+
+const OWNER_TOKENS = new Set(["syed", "muhammad", "ahmad", "akka", "portfolio", "website"]);
+
+function hasTopicMatch(query, results) {
+  const qTokens = tokenize(query).filter((t) => !OWNER_TOKENS.has(t));
+  if (qTokens.length === 0) return true;
+  const combined = results
+    .slice(0, 3)
+    .map((r) => `${r.chunk.meta.title} ${r.chunk.text}`)
+    .join(" ");
+  const docTokens = new Set(tokenize(combined));
+  return qTokens.some((t) => docTokens.has(t));
+}
 
 function systemPrompt(ownerName, langCode) {
   const langRule =
@@ -71,12 +84,22 @@ function toCitation(result, n) {
   };
 }
 
-function extractiveFallback(results, ownerName) {
-  if (!results.length || results[0].score < 0.15) {
-    return `I couldn't find that in ${ownerName}'s portfolio documents. Try asking about his skills, projects, education or experience — or use the contact form.`;
+function extractiveFallback(results, ownerName, query = "") {
+  if (!results.length || results[0].score < 0.15 || !hasTopicMatch(query, results)) {
+    return {
+      answer: `I don't have that information in ${ownerName}'s portfolio documents. Try asking about his Unity & Unreal Engine 5 games, C++/SFML projects, XR simulations, education at NED University, or internship at Aerox ERP — or use the contact form.`,
+      matched: false,
+    };
   }
-  const lines = results.slice(0, 3).map((r, i) => `• ${r.chunk.text.slice(0, 260).trim()}… [${i + 1}]`);
-  return `(AI model offline — showing the most relevant portfolio excerpts)\n${lines.join("\n")}`;
+  const lines = results.slice(0, 3).map((r, i) => {
+    const cleanText = r.chunk.text.replace(/\s+/g, " ").trim();
+    const excerpt = cleanText.length > 260 ? `${cleanText.slice(0, 260).trim()}…` : cleanText;
+    return `• ${excerpt} [${i + 1}]`;
+  });
+  return {
+    answer: `Here is what ${ownerName}'s portfolio documents say:\n\n${lines.join("\n")}`,
+    matched: true,
+  };
 }
 
 export default async function handler(req, res) {
@@ -126,10 +149,11 @@ export default async function handler(req, res) {
   const { results, mode } = search(retrievalQuery, queryEmbedding, { k: 6 });
 
   if (!hasGeminiKey()) {
+    const fb = extractiveFallback(results, ownerName, message);
     return sendJson(res, 200, {
       ok: true,
-      answer: extractiveFallback(results, ownerName),
-      citations: results.slice(0, 3).map((r, i) => toCitation(r, i + 1)),
+      answer: fb.answer,
+      citations: fb.matched ? results.slice(0, 3).map((r, i) => toCitation(r, i + 1)) : [],
       retrieval: mode,
       model: null,
     });
@@ -163,10 +187,11 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error("[chat] generation failed:", error.message);
+    const fb = extractiveFallback(results, ownerName, message);
     return sendJson(res, 200, {
       ok: true,
-      answer: extractiveFallback(results, ownerName),
-      citations: results.slice(0, 3).map((r, i) => toCitation(r, i + 1)),
+      answer: fb.answer,
+      citations: fb.matched ? results.slice(0, 3).map((r, i) => toCitation(r, i + 1)) : [],
       retrieval: mode,
       model: null,
       degraded: true,

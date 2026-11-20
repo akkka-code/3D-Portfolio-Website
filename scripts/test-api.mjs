@@ -56,3 +56,18 @@ const cBad = await callHandler(contactHandler, {
   startedAt: Date.now() - 10000,
 });
 console.log("Invalid payload status (expected 422):", cBad.status, cBad.data.errors);
+
+console.log("\n=== 4. Testing Valid Contact Submission ===");
+const cGood = await callHandler(contactHandler, {
+  name: "Ada Lovelace",
+  email: "ada@analytical-engine.org",
+  subject: "Game Development Collaboration",
+  message: "Hi Ahmad, I explored your 3D WebGPU portfolio and loved Chrono Rebellion!",
+  startedAt: Date.now() - 12000,
+  website: "",
+});
+console.log("Valid payload status (expected 200):", cGood.status, cGood.data);
+if (cBad.status !== 422 || cGood.status !== 200 || !q1.data.ok) {
+  process.exit(1);
+}
+console.log("\n✅ All RAG & Contact API tests passed!");

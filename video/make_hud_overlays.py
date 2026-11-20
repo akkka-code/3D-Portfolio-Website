@@ -1,19 +1,23 @@
 import os
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 OUT_DIR = "video/overlays"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 W, H = 1920, 1080
 
-CYAN = (0, 229, 255, 255)
-MAGENTA = (255, 43, 214, 255)
-YELLOW = (252, 238, 10, 255)
-GREEN = (0, 255, 157, 255)
-WHITE = (245, 250, 255, 255)
-MUTED = (165, 188, 214, 255)
-DARK_BG = (6, 10, 22, 228)
-DARK_CARD = (10, 17, 36, 235)
+# Exact samsy.ninja Editorial Design System Palette (extracted from src/portfolio/portfolio.css)
+BG_SOLID = (7, 7, 10, 246)          # --sn-bg-solid: #07070a
+BG_ELEV = (13, 13, 18, 244)         # --sn-bg-elev:  rgba(13, 13, 18, 0.96)
+BG_CARD = (15, 15, 22, 238)         # --sn-bg-card:  rgba(15, 15, 22, 0.93)
+FG = (244, 244, 246, 255)           # --sn-fg:       #f4f4f6
+FG_MUTED = (148, 148, 156, 255)     # --sn-fg-muted: rgba(244, 244, 246, 0.58)
+FG_SUBTLE = (96, 96, 104, 255)      # --sn-fg-subtle
+LINE = (244, 244, 246, 38)          # --sn-line:     1px architectural hairline
+LINE_STRONG = (244, 244, 246, 86)   # --sn-line-strong
+LINE_OPAQUE = (52, 52, 62, 255)     # Opaque 1px hairline for nested cards
+ACCENT = (221, 251, 36, 255)        # --sn-accent:   #ddfb24 Surgical Acid-Lime
+EMERALD = (24, 242, 160, 255)       # --sn-success:  #18f2a0 Status Dot
 
 
 def get_font(size, bold=True, mono=False):
@@ -35,82 +39,80 @@ def get_font(size, bold=True, mono=False):
     return ImageFont.load_default()
 
 
-def chamfer_poly(x, y, w, h, cut=22):
-    return [
-        (x + cut, y),
-        (x + w - cut, y),
-        (x + w, y + cut),
-        (x + w, y + h - cut),
-        (x + w - cut, y + h),
-        (x + cut, y + h),
-        (x, y + h - cut),
-        (x, y + cut),
-    ]
+def draw_editorial_box(draw, x, y, w, h, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True, accent_color=ACCENT):
+    draw.rectangle([x, y, x + w, y + h], fill=fill, outline=border, width=1)
+    if accent_stub:
+        # Surgical 3px acid-lime top-left index rule
+        stub_w = min(96, w // 4)
+        draw.rectangle([x, y, x + stub_w, y + 3], fill=accent_color)
 
 
-def draw_chamfer_panel(draw, x, y, w, h, cut=22, fill=DARK_BG, outline=CYAN, width=3, accent=MAGENTA):
-    pts = chamfer_poly(x, y, w, h, cut)
-    draw.polygon(pts, fill=fill, outline=outline, width=width)
-    # Corner accent brackets
-    b = cut + 24
-    # Top-left & bottom-right glowing accent lines
-    draw.line([(x, y + cut + b), (x, y + cut), (x + cut, y), (x + cut + b, y)], fill=accent, width=width + 2)
-    draw.line(
-        [(x + w, y + h - cut - b), (x + w, y + h - cut), (x + w - cut, y + h), (x + w - cut - b, y + h)],
-        fill=accent,
-        width=width + 2,
-    )
+def draw_outline_text(draw, xy, text, font, stroke_color=FG, stroke_width=2):
+    # Hollow outline typography matching .sn-hero-line--outline (-webkit-text-stroke: 1.5px #f4f4f6)
+    x, y = xy
+    for dx in range(-stroke_width, stroke_width + 1):
+        for dy in range(-stroke_width, stroke_width + 1):
+            if dx * dx + dy * dy == stroke_width * stroke_width:
+                draw.text((x + dx, y + dy), text, font=font, fill=stroke_color)
+    draw.text((x, y), text, font=font, fill=BG_ELEV)
 
 
-def draw_outer_hud_chrome(draw, top_label="PORTFOLIO SHOWREEL // SYED MUHAMMAD AHMAD [AKKA]", right_label="NED UNIVERSITY · GAMING & ANIMATION"):
-    # Sleek angled top HUD bar
-    top_pts = [(0, 0), (W, 0), (W, 46), (W - 360, 46), (W - 380, 62), (380, 62), (360, 46), (0, 46)]
-    draw.polygon(top_pts, fill=(5, 9, 20, 220))
-    draw.line([(0, 46), (360, 46), (380, 62), (W - 380, 62), (W - 360, 46), (W, 46)], fill=CYAN, width=3)
+def draw_editorial_chrome(draw, section_tag="(01) — SELECTED WORKS", right_tag="SHOWREEL 2026 // 1080P 60FPS"):
+    # Minimal Fixed Top Architectural Bar (62px height, 1px hairline bottom border)
+    draw.rectangle([0, 0, W, 62], fill=BG_ELEV)
+    draw.line([(0, 62), (W, 62)], fill=LINE_OPAQUE, width=1)
 
-    # Sleek angled bottom HUD bar
-    bot_pts = [(0, H), (W, H), (W, H - 44), (W - 420, H - 44), (W - 440, H - 58), (440, H - 58), (420, H - 44), (0, H - 44)]
-    draw.polygon(bot_pts, fill=(5, 9, 20, 220))
-    draw.line([(0, H - 44), (420, H - 44), (440, H - 58), (W - 440, H - 58), (W - 420, H - 44), (W, H - 44)], fill=MAGENTA, width=3)
+    f_brand = get_font(18, bold=True)
+    f_mono = get_font(15, mono=True)
 
-    # Corner targeting reticles
-    for cx, cy, sx, sy in [(28, 78, 1, 1), (W - 28, 78, -1, 1), (28, H - 74, 1, -1), (W - 28, H - 74, -1, -1)]:
-        draw.line([(cx, cy + sy * 34), (cx, cy), (cx + sx * 34, cy)], fill=CYAN, width=3)
+    # Brand mark + [AKKA®] handle box + green availability dot
+    draw.text((48, 21), "SYED MUHAMMAD AHMAD", font=f_brand, fill=FG)
+    draw.rectangle([282, 18, 352, 43], fill=BG_CARD, outline=LINE_OPAQUE, width=1)
+    draw.text((317, 23), "AKKA®", font=f_mono, fill=FG, anchor="ma")
 
-    f_mono = get_font(18, mono=True)
-    f_center = get_font(19, bold=True)
-    draw.text((34, 13), top_label, font=f_mono, fill=CYAN)
-    draw.text((W - 34, 13), right_label, font=f_mono, fill=YELLOW, anchor="ra")
-    draw.text((W // 2, 18), "[LIVE 1080P] // 60FPS WEBGPU + GAME ENGINE REEL", font=f_center, fill=WHITE, anchor="ma")
-    draw.text(
-        (W // 2, H - 38),
-        "UNITY 3D  ·  UNREAL ENGINE 5  ·  C# / C++ / PYTHON  ·  OPENXR / VUFORIA  ·  BLENDER 5.1  ·  THREE.JS WEBGPU",
-        font=f_mono,
-        fill=MUTED,
-        anchor="ma",
-    )
+    # Emerald pulse dot + availability
+    draw.ellipse([376, 27, 384, 35], fill=EMERALD)
+    draw.text((396, 23), "AVAILABLE FOR GAME DEV & XR", font=f_mono, fill=FG_MUTED)
+
+    # Center section index & right metadata
+    draw.text((W // 2 + 80, 23), section_tag, font=f_mono, fill=ACCENT, anchor="ma")
+    draw.text((W - 48, 23), right_tag, font=f_mono, fill=FG_MUTED, anchor="ra")
+
+    # Minimal Bottom Architectural Rail (52px height, 1px hairline top border)
+    draw.rectangle([0, H - 52, W, H], fill=BG_ELEV)
+    draw.line([(0, H - 52), (W, H - 52)], fill=LINE_OPAQUE, width=1)
+    draw.text((48, H - 33), "© 2026 SYED MUHAMMAD AHMAD (AKKA®). ALL RIGHTS RESERVED.", font=f_mono, fill=FG_MUTED)
+    draw.text((W - 48, H - 33), "UNITY  ·  UNREAL ENGINE 5  ·  C++ / C# / PYTHON  ·  OPENXR  ·  BLENDER 5.1  ·  WEBGPU", font=f_mono, fill=FG_MUTED, anchor="ra")
 
 
-def draw_pills(draw, x, y, tags, border_color=CYAN):
-    f_tag = get_font(19, bold=True)
+def draw_hairline_tags(draw, x, y, tags, highlight_first=False):
+    f_tag = get_font(15, mono=True)
     cur_x = x
-    for tag in tags:
-        bbox = draw.textbbox((0, 0), tag, font=f_tag)
-        tw = bbox[2] - bbox[0] + 30
-        th = 40
-        pts = chamfer_poly(cur_x, y, tw, th, cut=8)
-        draw.polygon(pts, fill=(10, 26, 52, 250), outline=border_color, width=2)
-        draw.text((cur_x + 15, y + 9), tag, font=f_tag, fill=WHITE)
-        cur_x += tw + 12
+    for idx, tag in enumerate(tags):
+        label = tag.upper()
+        bbox = draw.textbbox((0, 0), label, font=f_tag)
+        tw = (bbox[2] - bbox[0]) + 24
+        th = 32
+        if highlight_first and idx == 0:
+            draw.rectangle([cur_x, y, cur_x + tw, y + th], fill=ACCENT, outline=ACCENT, width=1)
+            draw.text((cur_x + 12, y + 8), label, font=f_tag, fill=(7, 7, 10, 255))
+        else:
+            draw.rectangle([cur_x, y, cur_x + tw, y + th], fill=BG_CARD, outline=LINE_OPAQUE, width=1)
+            draw.text((cur_x + 12, y + 8), label, font=f_tag, fill=FG)
+        cur_x += tw + 8
 
 
-def paste_chamfer_image(base_img, img_path, x, y, w, h, cut=24, border_color=CYAN):
+def paste_editorial_image(base_img, img_path, x, y, w, h, caption_left="", caption_right=""):
     if not os.path.exists(img_path):
         return
+    draw = ImageDraw.Draw(base_img)
+    # Outer 1px Swiss frame with 10px matte padding
+    draw.rectangle([x, y, x + w, y + h], fill=BG_CARD, outline=LINE_OPAQUE, width=1)
+    ix, iy, iw, ih = x + 10, y + 10, w - 20, h - (42 if caption_left else 20)
+
     src = Image.open(img_path).convert("RGBA")
-    # Crop center aspect
     sw, sh = src.size
-    target_aspect = w / h
+    target_aspect = iw / ih
     src_aspect = sw / sh
     if src_aspect > target_aspect:
         new_w = int(sh * target_aspect)
@@ -120,225 +122,326 @@ def paste_chamfer_image(base_img, img_path, x, y, w, h, cut=24, border_color=CYA
         new_h = int(sw / target_aspect)
         top = (sh - new_h) // 2
         src = src.crop((0, top, sw, top + new_h))
-    src = src.resize((w, h), Image.Resampling.LANCZOS)
+    src = src.resize((iw, ih), Image.Resampling.LANCZOS)
+    base_img.paste(src, (ix, iy))
+    draw.rectangle([ix, iy, ix + iw, iy + ih], outline=LINE_OPAQUE, width=1)
 
-    mask = Image.new("L", (w, h), 0)
-    mdraw = ImageDraw.Draw(mask)
-    mdraw.polygon(chamfer_poly(0, 0, w, h, cut), fill=255)
-    base_img.paste(src, (x, y), mask)
-
-    draw = ImageDraw.Draw(base_img)
-    draw.polygon(chamfer_poly(x, y, w, h, cut), outline=border_color, width=4)
+    if caption_left:
+        f_cap = get_font(13, mono=True)
+        draw.text((ix, iy + ih + 10), caption_left, font=f_cap, fill=FG_MUTED)
+        if caption_right:
+            draw.text((ix + iw, iy + ih + 10), caption_right, font=f_cap, fill=ACCENT, anchor="ra")
 
 
-def build_project_lower_third(filename, num_str, category, title, subtitle, tags, primary=CYAN, accent=MAGENTA):
+def build_case_study_overlay(filename, idx_str, category, year, title, summary, tags):
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
-    draw_outer_hud_chrome(draw)
+    draw_editorial_chrome(draw, section_tag=f"(01) — SELECTED WORKS // CASE STUDY {idx_str}")
 
-    # Sleek lower-left angled HUD card (leaves 78% of the 1080p gameplay screen completely clear!)
-    px, py, pw, ph = 56, 725, 1360, 265
-    draw_chamfer_panel(draw, px, py, pw, ph, cut=22, fill=(6, 11, 24, 236), outline=primary, width=3, accent=accent)
+    # Crisp 1px Swiss architectural framing lines around viewport
+    draw.line([(48, 62), (48, H - 52)], fill=(244, 244, 246, 35), width=1)
+    draw.line([(W - 48, 62), (W - 48, H - 52)], fill=(244, 244, 246, 35), width=1)
 
-    # Number badge on left
-    draw_chamfer_panel(draw, px + 24, py + 24, 96, 86, cut=12, fill=(10, 28, 56, 250), outline=primary, width=2, accent=primary)
-    draw.text((px + 72, py + 44), num_str, font=get_font(42, bold=True), fill=primary, anchor="ma")
+    # Top-right minimal index pill
+    draw_editorial_box(draw, W - 368, 86, 296, 68, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    draw.text((W - 348, 99), f"INDEX // {idx_str} OF 009", font=get_font(14, mono=True), fill=ACCENT)
+    draw.text((W - 348, 122), f"{category.upper()} · {year}", font=get_font(16, bold=True), fill=FG)
 
-    # Category + Title + Subtitle
-    draw.text((px + 142, py + 24), category, font=get_font(21, mono=True), fill=accent)
-    draw.text((px + 142, py + 54), title, font=get_font(52, bold=True), fill=WHITE)
-    draw.text((px + 142, py + 122), subtitle, font=get_font(22), fill=MUTED)
+    # Lower-left Minimalist Editorial Case Study Card (leaves 78% of gameplay footage crystal-clear)
+    px, py, pw, ph = 72, 738, 1280, 248
+    draw_editorial_box(draw, px, py, pw, ph, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
 
-    draw_pills(draw, px + 24, py + 196, tags, border_color=primary)
+    # Vertical hairline column divider inside card (Index col | Content col)
+    draw.line([(px + 128, py), (px + 128, py + ph)], fill=LINE_OPAQUE, width=1)
+    draw.text((px + 64, py + 32), idx_str, font=get_font(36, mono=True), fill=ACCENT, anchor="ma")
+    draw.text((px + 64, py + 82), str(year), font=get_font(15, mono=True), fill=FG_MUTED, anchor="ma")
 
-    # Top-right live telemetry crosshair widget
-    draw_chamfer_panel(draw, W - 390, 88, 334, 86, cut=14, fill=(6, 11, 24, 228), outline=primary, width=2, accent=accent)
-    draw.text((W - 368, 102), "GAMEPLAY FEED // DIRECT CAPTURE", font=get_font(16, mono=True), fill=primary)
-    draw.text((W - 368, 130), f"TARGET: {title[:18]}", font=get_font(20, bold=True), fill=WHITE)
+    # Content column
+    cx = px + 156
+    draw.text((cx, py + 24), f"{category.upper()}   //   DIRECT ENGINE CAPTURE", font=get_font(15, mono=True), fill=FG_MUTED)
+    draw.text((cx, py + 52), title.upper(), font=get_font(48, bold=True), fill=FG)
+    draw.text((cx, py + 118), summary, font=get_font(20, bold=False), fill=FG_MUTED)
+
+    # Horizontal hairline above tags
+    draw.line([(cx, py + 166), (px + pw - 28, py + 166)], fill=LINE_OPAQUE, width=1)
+    draw_hairline_tags(draw, cx, py + 184, tags, highlight_first=True)
 
     img.save(os.path.join(OUT_DIR, filename))
 
 
 def main():
-    # 1. Scene 1: Cold Open Overlay (over 2x2 live gameplay grid)
+    # =========================================================================
+    # ACT 1: Editorial Hero Statement (Exact samsy.ninja Hero Typography & Grid)
+    # =========================================================================
     img1 = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw1 = ImageDraw.Draw(img1)
-    # Grid crosshair lines for the 2x2 background
-    draw1.line([(W // 2, 0), (W // 2, H)], fill=(0, 229, 255, 210), width=4)
-    draw1.line([(0, H // 2), (W, H // 2)], fill=(255, 43, 214, 210), width=4)
-    draw_outer_hud_chrome(draw1)
+    # Architectural 2x2 grid hairlines over the 4-game live backdrop
+    draw1.line([(W // 2, 62), (W // 2, H - 52)], fill=LINE_OPAQUE, width=1)
+    draw1.line([(0, H // 2), (W, H // 2)], fill=LINE_OPAQUE, width=1)
+    draw_editorial_chrome(draw1, section_tag="(00) — CREATIVE TECHNOLOGIST & GAME ARCHITECT")
 
-    # Center-left hero HUD command panel + right portrait
-    draw_chamfer_panel(draw1, 88, 185, 1744, 710, cut=34, fill=(6, 10, 24, 236), outline=CYAN, width=4, accent=MAGENTA)
-    paste_chamfer_image(img1, "public/images/ahmad-2.jpg", 1320, 235, 455, 610, cut=28, border_color=CYAN)
+    # Main editorial hero frame
+    draw_editorial_box(draw1, 88, 128, 1744, 824, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    paste_editorial_image(
+        img1,
+        "public/images/ahmad-2.jpg",
+        1310,
+        172,
+        472,
+        590,
+        caption_left="SYED MUHAMMAD AHMAD",
+        caption_right="[AKKA®]",
+    )
 
-    draw1.text((145, 235), "// SYSTEM ONLINE · INTERACTIVE 3D PORTFOLIO & SHOWREEL", font=get_font(23, mono=True), fill=CYAN)
-    draw1.text((145, 285), "SYED MUHAMMAD", font=get_font(82, bold=True), fill=WHITE)
-    draw1.text((145, 380), "AHMAD  [AKKA]", font=get_font(78, bold=True), fill=CYAN)
+    f_hero = get_font(86, bold=True)
+    draw1.text((140, 172), "SYED MUHAMMAD", font=f_hero, fill=FG)
+    draw1.text((140, 268), "AHMAD — AKKA®", font=f_hero, fill=ACCENT)
+    draw_outline_text(draw1, (140, 364), "INTERACTIVE 3D &", font=f_hero, stroke_color=FG, stroke_width=2)
+    draw1.text((140, 460), "GAME ARCHITECT.", font=f_hero, fill=FG)
 
-    draw_chamfer_panel(draw1, 145, 490, 1110, 66, cut=12, fill=(32, 12, 48, 250), outline=MAGENTA, width=2, accent=YELLOW)
-    draw1.text((170, 508), "GAME DEVELOPER  ·  GAME PROGRAMMER  ·  XR & 3D ARTIST", font=get_font(28, bold=True), fill=YELLOW)
+    # Architectural bottom 2-column grid inside hero
+    draw1.line([(140, 588), (1265, 588)], fill=LINE_OPAQUE, width=1)
+    draw1.text(
+        (140, 614),
+        "I build immersive games, procedural 3D worlds, and XR simulations with Unity,",
+        font=get_font(23, bold=False),
+        fill=FG,
+    )
+    draw1.text(
+        (140, 646),
+        "Unreal Engine 5, C++, and real-time WebGPU shaders. Final-year BS CS & IT",
+        font=get_font(23, bold=False),
+        fill=FG_MUTED,
+    )
+    draw1.text(
+        (140, 678),
+        "(Gaming & Animation) at NED University & Game Dev Intern at Aerox ERP.",
+        font=get_font(23, bold=False),
+        fill=FG_MUTED,
+    )
 
-    draw1.text((145, 588), "BS CS & IT (Gaming & Animation) · NED University (2023–2027)", font=get_font(28), fill=WHITE)
-    draw1.text((145, 634), "Game Development Intern @ Aerox ERP  ·  Global Game Jam 2026 Developer", font=get_font(26), fill=MUTED)
+    # 3 Metrics cells
+    metrics = [("08+", "SHIPPED GAMES"), ("UNITY · UE5", "CORE ENGINES"), ("GGJ 2026", "GAME JAM TEAM")]
+    for idx, (mval, mlbl) in enumerate(metrics):
+        mx = 140 + idx * 240
+        draw1.line([(mx, 738), (mx, 815)], fill=LINE_OPAQUE, width=1)
+        draw1.text((mx + 16, 740), mval, font=get_font(30, bold=True), fill=FG)
+        draw1.text((mx + 16, 782), mlbl, font=get_font(13, mono=True), fill=FG_MUTED)
 
-    draw_pills(
+    draw_hairline_tags(
         draw1,
-        145,
-        715,
-        ["8+ SHIPPED GAMES", "UNITY 3D", "UNREAL ENGINE 5", "C# / C++ / PYTHON", "AR / VR", "BLENDER 5.1"],
-        border_color=CYAN,
+        140,
+        856,
+        ["SELECTED WORKS (09)", "UNITY HDRP", "UNREAL ENGINE 5", "C++ / C# / PYTHON", "OPENXR / VUFORIA", "BLENDER 5.1", "WEBGPU"],
+        highlight_first=True,
     )
     img1.save(os.path.join(OUT_DIR, "hud_scene1_intro.png"))
 
-    # 2. Scene 2: Chrono Rebellion (Full-screen HD)
-    build_project_lower_third(
+    # =========================================================================
+    # ACT 2: 001 — Chrono Rebellion
+    # =========================================================================
+    build_case_study_overlay(
         "hud_scene2_chrono.png",
-        "01",
-        "FLAGSHIP 3D SCI-FI ACTION SHOOTER // 1ST & 3RD PERSON",
-        "CHRONO REBELLION",
-        "Time-manipulation combat mechanics, enemy AI state machines, custom weapon HUD & HDRP lighting.",
-        ["UNITY 3D", "C#", "HDRP", "SHADER GRAPH", "CINEMACHINE", "COMBAT AI"],
-        primary=CYAN,
-        accent=MAGENTA,
+        "001",
+        "Game // Sci-Fi Shooter",
+        2026,
+        "Chrono Rebellion",
+        "Third-person and first-person sci-fi shooter featuring time-manipulation mechanics, custom HUD, and HDRP combat.",
+        ["UNITY", "C#", "HDRP", "SHADER GRAPH", "TIME-MANIPULATION AI", "1ST & 3RD PERSON"],
     )
 
-    # 3. Scene 3: Behind the Smile (Full-screen HD)
-    build_project_lower_third(
+    # =========================================================================
+    # ACT 3: 002 — Behind the Smile (Global Game Jam 2026)
+    # =========================================================================
+    build_case_study_overlay(
         "hud_scene3_smile.png",
-        "02",
-        "GLOBAL GAME JAM 2026 SHOWCASE // BUILT IN 48 HOURS",
-        "BEHIND THE SMILE",
-        "Atmospheric first-person narrative exploration game built around the GGJ26 theme 'Masks'.",
-        ["UNITY 3D", "C#", "NARRATIVE DESIGN", "3D ENVIRONMENT", "CUSTOM UI"],
-        primary=MAGENTA,
-        accent=YELLOW,
+        "002",
+        "Game // Global Game Jam 2026",
+        2026,
+        "Behind the Smile",
+        "Narrative-driven 3D exploration game built in 48 hours at Global Game Jam 2026 around the theme 'Masks'.",
+        ["UNITY 3D", "C#", "GLOBAL GAME JAM 2026", "NARRATIVE SYSTEMS", "CUSTOM UI"],
     )
 
-    # 4. Scene 4: Dual Split-Screen Arcade Showdown (Paper Plane Dash x Pac-Man)
+    # =========================================================================
+    # ACT 4: Dual Split-Screen Editorial Comparison (003 Paper Plane Dash x 006 Pac-Man)
+    # =========================================================================
     img4 = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw4 = ImageDraw.Draw(img4)
-    # Glowing vertical divider spine
-    draw4.rectangle([W // 2 - 4, 46, W // 2 + 4, H - 44], fill=CYAN)
-    draw_outer_hud_chrome(draw4, top_label="DUAL ARCADE SHOWCASE // UNREAL ENGINE 5  ×  C++ / SFML")
+    # Crisp 2px vertical architectural split line
+    draw4.rectangle([W // 2 - 1, 62, W // 2 + 1, H - 52], fill=FG)
+    draw_editorial_chrome(draw4, section_tag="(01) — SELECTED WORKS // DUAL ENGINE COMPARISON")
 
-    # Left card (Paper Plane Dash)
-    draw_chamfer_panel(draw4, 42, 740, 860, 250, cut=18, fill=(6, 11, 24, 224), outline=CYAN, width=3, accent=MAGENTA)
-    draw4.text((72, 762), "03 // PROCEDURAL ENDLESS RUNNER", font=get_font(20, mono=True), fill=CYAN)
-    draw4.text((72, 792), "PAPER PLANE DASH", font=get_font(44, bold=True), fill=WHITE)
-    draw4.text((72, 852), "Dynamic flight physics & procedural obstacle spawning.", font=get_font(21), fill=MUTED)
-    draw_pills(draw4, 72, 908, ["UNREAL ENGINE 5", "BLUEPRINTS", "PROCEDURAL GEN"], border_color=CYAN)
+    # Left Card: 003 Paper Plane Dash
+    draw_editorial_box(draw4, 48, 752, 864, 236, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    draw4.text((76, 774), "003   //   GAME · 2025 · UNREAL ENGINE 5", font=get_font(15, mono=True), fill=ACCENT)
+    draw4.text((76, 804), "PAPER PLANE DASH", font=get_font(42, bold=True), fill=FG)
+    draw4.text((76, 862), "Procedural 3D endless runner with Blueprint lane physics & obstacle generation.", font=get_font(18, bold=False), fill=FG_MUTED)
+    draw_hairline_tags(draw4, 76, 918, ["UNREAL ENGINE 5", "BLUEPRINTS", "PROCEDURAL GENERATION"], highlight_first=True)
 
-    # Right card (Pac-Man)
-    draw_chamfer_panel(draw4, W // 2 + 58, 740, 860, 250, cut=18, fill=(6, 11, 24, 224), outline=YELLOW, width=3, accent=MAGENTA)
-    draw4.text((W // 2 + 88, 762), "04 // CUSTOM C++ ENGINE & AI ALGORITHMS", font=get_font(20, mono=True), fill=YELLOW)
-    draw4.text((W // 2 + 88, 792), "PAC-MAN ARCADE", font=get_font(44, bold=True), fill=WHITE)
-    draw4.text((W // 2 + 88, 852), "QuadTree spatial collision & Graph-based Ghost pathfinding.", font=get_font(21), fill=MUTED)
-    draw_pills(draw4, W // 2 + 88, 908, ["C++", "SFML", "QUADTREES", "GRAPH PATHFINDING"], border_color=YELLOW)
+    # Right Card: 006 Pac-Man
+    draw_editorial_box(draw4, W // 2 + 48, 752, 864, 236, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    draw4.text((W // 2 + 76, 774), "006   //   GAME · 2024 · CUSTOM C++ ENGINE", font=get_font(15, mono=True), fill=ACCENT)
+    draw4.text((W // 2 + 76, 804), "PAC-MAN (C++ / SFML)", font=get_font(42, bold=True), fill=FG)
+    draw4.text((W // 2 + 76, 862), "2D arcade engine using QuadTrees for spatial collision and Graph AI pathfinding.", font=get_font(18, bold=False), fill=FG_MUTED)
+    draw_hairline_tags(draw4, W // 2 + 76, 918, ["C++", "SFML", "QUADTREES", "GRAPH PATHFINDING"], highlight_first=True)
     img4.save(os.path.join(OUT_DIR, "hud_scene4_dual.png"))
 
-    # 5. Scene 5: Voxelcraft 3D (Full-screen HD)
-    build_project_lower_third(
+    # =========================================================================
+    # ACT 5: 005 — Voxelcraft 3D
+    # =========================================================================
+    build_case_study_overlay(
         "hud_scene5_voxel.png",
-        "05",
-        "PROCEDURAL 3D VOXEL SANDBOX // CUSTOM CHUNK ENGINE",
-        "VOXELCRAFT 3D",
-        "Procedural terrain generation, greedy chunk mesh optimization, raycast block placement & destruction.",
-        ["UNITY 3D", "C#", "PROCEDURAL TERRAIN", "VOXEL MESHING", "SANDBOX PHYSICS"],
-        primary=YELLOW,
-        accent=CYAN,
+        "005",
+        "Game // Procedural Sandbox",
+        2025,
+        "Voxelcraft 3D",
+        "Voxel-based 3D sandbox engine featuring procedural terrain chunks, block placement, and raycast destruction.",
+        ["UNITY 3D", "C#", "PROCEDURAL VOXEL ENGINE", "CHUNK MESHING", "SANDBOX"],
     )
 
-    # 6. Scene 6: XR Triple Showcase (VR Solar System + AR Memory + AR Face Filter)
+    # =========================================================================
+    # ACT 6: Triple XR Viewport (004 Solar System VR + 007 AR Memory + 008 AR Face Filter)
+    # =========================================================================
     img6 = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw6 = ImageDraw.Draw(img6)
-    # Split lines: X = 1080 vertical, Y = 540 horizontal on right side
-    draw6.rectangle([1077, 46, 1083, H - 44], fill=CYAN)
-    draw6.rectangle([1080, 537, W, 543], fill=MAGENTA)
-    draw_outer_hud_chrome(draw6, top_label="EXTENDED REALITY (XR) & COMPUTER VISION // VR · AR · MEDIAPIPE")
+    draw6.rectangle([1079, 62, 1081, H - 52], fill=FG)
+    draw6.rectangle([1080, 539, W, 541], fill=FG)
+    draw_editorial_chrome(draw6, section_tag="(01) — SELECTED WORKS // EXTENDED REALITY (VR · AR · CV)")
 
-    # Left panel card (Solar System VR)
-    draw_chamfer_panel(draw6, 40, 760, 995, 230, cut=18, fill=(6, 11, 24, 224), outline=CYAN, width=3, accent=MAGENTA)
-    draw6.text((68, 780), "06 // IMMERSIVE VIRTUAL REALITY SIMULATION", font=get_font(19, mono=True), fill=CYAN)
-    draw6.text((68, 810), "SOLAR SYSTEM VR", font=get_font(44, bold=True), fill=WHITE)
-    draw_pills(draw6, 68, 885, ["UNITY VR", "OPENXR", "XR INTERACTION TOOLKIT", "3D SPATIAL UI"], border_color=CYAN)
+    # Left: 004 Solar System VR
+    draw_editorial_box(draw6, 48, 768, 984, 220, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    draw6.text((76, 790), "004   //   XR · 2025 · VIRTUAL REALITY", font=get_font(15, mono=True), fill=ACCENT)
+    draw6.text((76, 818), "SOLAR SYSTEM EXPLORATION (VR)", font=get_font(38, bold=True), fill=FG)
+    draw6.text((76, 872), "Immersive VR planetary simulation with teleportation locomotion and world-space UI.", font=get_font(18, bold=False), fill=FG_MUTED)
+    draw_hairline_tags(draw6, 76, 922, ["UNITY", "OPENXR", "XR INTERACTION TOOLKIT", "VR"], highlight_first=True)
 
-    # Top-right card (AR Memory)
-    draw_chamfer_panel(draw6, 1110, 395, 775, 125, cut=14, fill=(6, 11, 24, 224), outline=MAGENTA, width=2, accent=YELLOW)
-    draw6.text((1134, 412), "07 // AUGMENTED REALITY CARD GAME", font=get_font(17, mono=True), fill=MAGENTA)
-    draw6.text((1134, 440), "AR MEMORY  [UNITY · VUFORIA SDK]", font=get_font(28, bold=True), fill=WHITE)
+    # Top-Right: 007 AR Memory Card Game
+    draw_editorial_box(draw6, 1112, 392, 760, 122, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    draw6.text((1136, 412), "007   //   XR · 2025 · VUFORIA AUGMENTED REALITY", font=get_font(14, mono=True), fill=ACCENT)
+    draw6.text((1136, 440), "AR MEMORY CARD GAME  [UNITY · VUFORIA]", font=get_font(26, bold=True), fill=FG)
 
-    # Bottom-right card (AR Face Filter)
-    draw_chamfer_panel(draw6, 1110, 885, 775, 125, cut=14, fill=(6, 11, 24, 224), outline=GREEN, width=2, accent=CYAN)
-    draw6.text((1134, 902), "08 // REAL-TIME 468-POINT FACE TRACKING", font=get_font(17, mono=True), fill=GREEN)
-    draw6.text((1134, 930), "AR FACE FILTER  [PYTHON · OPENCV · MEDIAPIPE]", font=get_font(26, bold=True), fill=WHITE)
+    # Bottom-Right: 008 AR Face Filter App
+    draw_editorial_box(draw6, 1112, 882, 760, 122, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    draw6.text((1136, 902), "008   //   XR · 2025 · REAL-TIME COMPUTER VISION", font=get_font(14, mono=True), fill=ACCENT)
+    draw6.text((1136, 930), "AR FACE FILTER  [PYTHON · OPENCV · MEDIAPIPE]", font=get_font(25, bold=True), fill=FG)
     img6.save(os.path.join(OUT_DIR, "hud_scene6_xr.png"))
 
-    # 7. Scene 7: Custom 3D Blender Avatar & Technical Arsenal
+    # =========================================================================
+    # ACT 7: Section (02) & (03) — Custom Blender 5.1 3D Avatar & Capabilities Matrix
+    # =========================================================================
     img7 = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw7 = ImageDraw.Draw(img7)
-    draw_outer_hud_chrome(draw7, top_label="CUSTOM 3D BLENDER AVATAR & FULL-STACK TECHNICAL ARSENAL")
+    draw_editorial_chrome(draw7, section_tag="(02) — 3D CHARACTER LAB & TECHNICAL CAPABILITIES")
 
-    # Right side: large chamfered card with Blender Avatar render + skills
-    draw_chamfer_panel(draw7, 680, 110, 1180, 860, cut=28, fill=(6, 11, 24, 232), outline=CYAN, width=3, accent=MAGENTA)
-    paste_chamfer_image(img7, "blender/avatar_preview.png", 715, 145, 430, 790, cut=22, border_color=CYAN)
+    draw_editorial_box(draw7, 650, 108, 1210, 864, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    paste_editorial_image(
+        img7,
+        "blender/avatar_preview.png",
+        686,
+        146,
+        420,
+        788,
+        caption_left="MODEL // AVATAR.GLB",
+        caption_right="BLENDER 5.1",
+    )
 
-    draw7.text((1180, 155), "CUSTOM 3D AVATAR & SKILLS", font=get_font(22, mono=True), fill=MAGENTA)
-    draw7.text((1180, 190), "BLENDER 5.1 RIGGED AVATAR", font=get_font(38, bold=True), fill=WHITE)
-    draw7.text((1180, 245), "· 21-Bone Skeleton + 6 NLA Animations (Walk, Idle, Wave...)", font=get_font(21), fill=MUTED)
-    draw7.text((1180, 280), "· 3rd-Person Walk Mode + AI Voice Lip-Sync Morphs", font=get_font(21), fill=MUTED)
+    cx = 1140
+    draw7.text((cx, 148), "(02B) — CUSTOM RIGGED 3D AVATAR & CAPABILITIES", font=get_font(15, mono=True), fill=ACCENT)
+    draw7.text((cx, 180), "BLENDER 5.1 3D AVATAR", font=get_font(42, bold=True), fill=FG)
+    draw7.text((cx, 238), "21-Bone Skeleton · 6 NLA Clips (Walk, Idle, Wave, Talk, Point, Victory)", font=get_font(18, bold=False), fill=FG_MUTED)
+    draw7.text((cx, 268), "3rd-Person Avatar Walk Mode + AI Voice Lip-Sync Shape Keys", font=get_font(18, bold=False), fill=FG_MUTED)
 
-    skill_boxes = [
-        ("GAME ENGINES & 3D WEB", "Unity (HDRP/URP) · Unreal Engine 5 · Three.js WebGPU (TSL)", CYAN, 335),
-        ("LANGUAGES & SYSTEMS", "C# · C++ · C · Python · JavaScript · SFML · QuadTrees", MAGENTA, 470),
-        ("3D ART, VFX & AI RAG", "Blender 5.1 · After Effects · Photoshop · Gemini RAG AI", YELLOW, 605),
-        ("CERTIFICATIONS & HONORS", "CEGA Unreal Engine · CEGA Pre/Post-Prod · Coursera Google AI", GREEN, 740),
+    cap_cells = [
+        ("01 // GAME ENGINES", ["UNITY", "UNREAL ENGINE 5", "BLUEPRINTS", "HDRP", "SFML"], 326),
+        ("02 // PROGRAMMING", ["C#", "C++", "C", "PYTHON", "DATA STRUCTURES & ALGORITHMS"], 468),
+        ("03 // XR & 3D DESIGN", ["OPENXR", "VUFORIA", "BLENDER 5.1", "AFTER EFFECTS", "PHOTOSHOP"], 610),
+        ("04 // WEB, AI & CERTS", ["THREE.JS WEBGPU", "GEMINI RAG", "CEGA UE5", "COURSERA GOOGLE AI"], 752),
     ]
-    for stitle, sdesc, scol, sy in skill_boxes:
-        draw_chamfer_panel(draw7, 1180, sy, 645, 115, cut=14, fill=(12, 22, 46, 230), outline=scol, width=2, accent=WHITE)
-        draw7.text((1205, sy + 18), stitle, font=get_font(21, bold=True), fill=scol)
-        draw7.text((1205, sy + 56), sdesc, font=get_font(20), fill=WHITE)
+    for ctitle, ctags, cy in cap_cells:
+        draw7.line([(cx, cy), (1824, cy)], fill=LINE_OPAQUE, width=1)
+        draw7.text((cx, cy + 16), ctitle, font=get_font(15, mono=True), fill=ACCENT)
+        draw_hairline_tags(draw7, cx, cy + 52, ctags, highlight_first=False)
 
     img7.save(os.path.join(OUT_DIR, "hud_scene7_avatar.png"))
 
-    # 8. Scene 8: 2x2 Quad-Grid All-Games Rapid Montage
+    # =========================================================================
+    # ACT 8: 2x2 Architectural Index Matrix (09 Interactive Works)
+    # =========================================================================
     img8 = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw8 = ImageDraw.Draw(img8)
-    draw8.rectangle([W // 2 - 3, 46, W // 2 + 3, H - 44], fill=CYAN)
-    draw8.rectangle([0, H // 2 - 3, W, H // 2 + 3], fill=MAGENTA)
-    draw_outer_hud_chrome(draw8, top_label="MULTI-ENGINE GAMEPLAY MATRIX // 8+ INTERACTIVE PROJECTS")
+    draw8.rectangle([W // 2 - 1, 62, W // 2 + 1, H - 52], fill=FG)
+    draw8.rectangle([0, H // 2 - 1, W, H // 2 + 1], fill=FG)
+    draw_editorial_chrome(draw8, section_tag="(01) — CURATED PROJECT INDEX // 09 WORKS")
 
-    # Center diamond/chamfered badge over intersection
-    draw_chamfer_panel(draw8, W // 2 - 430, H // 2 - 95, 860, 190, cut=24, fill=(6, 10, 24, 238), outline=YELLOW, width=4, accent=CYAN)
-    draw8.text((W // 2, H // 2 - 58), "8+ SHIPPED GAMES & XR SIMULATIONS", font=get_font(38, bold=True), fill=WHITE, anchor="ma")
-    draw8.text((W // 2, H // 2 + 2), "3D ACTION · ENDLESS RUNNER · VR · AR · VOXEL SANDBOX · ARCADE", font=get_font(21, mono=True), fill=CYAN, anchor="ma")
-    draw8.text((W // 2, H // 2 + 44), "PLAYABLE VIDEOS STREAMING LIVE IN THE 3D WEBGPU ALLEY", font=get_font(20, bold=True), fill=YELLOW, anchor="ma")
+    # Center Swiss Architectural Plaque
+    bx, by, bw, bh = W // 2 - 460, H // 2 - 115, 920, 230
+    draw_editorial_box(draw8, bx, by, bw, bh, fill=BG_SOLID, border=FG, accent_stub=True)
+    draw8.text((W // 2, by + 34), "(01) — CURATED INTERACTIVE PORTFOLIO INDEX", font=get_font(15, mono=True), fill=ACCENT, anchor="ma")
+    draw8.text((W // 2, by + 72), "09 SELECTED WORKS (2024–2026)", font=get_font(46, bold=True), fill=FG, anchor="ma")
+    draw8.text((W // 2, by + 144), "HOVER FOR 60FPS WAVE-DISTORTION PREVIEW  ·  WALK IN 3RD-PERSON 3D ALLEY", font=get_font(16, mono=True), fill=FG_MUTED, anchor="ma")
     img8.save(os.path.join(OUT_DIR, "hud_scene8_quad.png"))
 
-    # 9. Scene 9: Finale Command Deck & Call To Action
+    # =========================================================================
+    # ACT 9: Section (04) — Editorial Outro & Direct Transmission
+    # =========================================================================
     img9 = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw9 = ImageDraw.Draw(img9)
-    draw_outer_hud_chrome(draw9)
+    draw9.line([(W // 2, 62), (W // 2, H - 52)], fill=LINE_OPAQUE, width=1)
+    draw9.line([(0, H // 2), (W, H // 2)], fill=LINE_OPAQUE, width=1)
+    draw_editorial_chrome(draw9, section_tag="(04) — INITIATE DIRECT TRANSMISSION")
 
-    draw_chamfer_panel(draw9, 110, 165, 1700, 750, cut=36, fill=(6, 10, 24, 226), outline=CYAN, width=4, accent=MAGENTA)
-    paste_chamfer_image(img9, "public/images/ahmad-1.jpg", 155, 220, 360, 640, cut=24, border_color=CYAN)
-    paste_chamfer_image(img9, "blender/avatar_preview.png", 1405, 220, 360, 640, cut=24, border_color=MAGENTA)
+    draw_editorial_box(draw9, 100, 140, 1720, 800, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
+    paste_editorial_image(
+        img9,
+        "public/images/ahmad-1.jpg",
+        144,
+        192,
+        360,
+        696,
+        caption_left="KARACHI, PK",
+        caption_right="NED ’27",
+    )
+    paste_editorial_image(
+        img9,
+        "blender/avatar_preview.png",
+        1416,
+        192,
+        360,
+        696,
+        caption_left="3D AVATAR",
+        caption_right="3RD-POV",
+    )
 
-    draw9.text((W // 2, 235), "// TRANSMISSION COMPLETE · READY FOR DEPLOYMENT", font=get_font(22, mono=True), fill=CYAN, anchor="ma")
-    draw9.text((W // 2, 295), "SYED MUHAMMAD AHMAD", font=get_font(62, bold=True), fill=WHITE, anchor="ma")
-    draw9.text((W // 2, 378), "GAME DEVELOPER · GAME PROGRAMMER · XR ENGINEER", font=get_font(26, bold=True), fill=YELLOW, anchor="ma")
+    draw9.text((W // 2, 210), "(04) — DIRECT TRANSMISSION // AVAILABLE FOR ROLES", font=get_font(16, mono=True), fill=ACCENT, anchor="ma")
+    draw9.text((W // 2, 265), "SYED MUHAMMAD AHMAD", font=get_font(56, bold=True), fill=FG, anchor="ma")
+    draw_outline_text(draw9, (W // 2 - 335, 340), "LET'S BUILD THE NEXT WORLD.", font=get_font(44, bold=True), stroke_color=FG, stroke_width=2)
 
-    draw_chamfer_panel(draw9, 555, 445, 810, 175, cut=18, fill=(12, 22, 48, 235), outline=MAGENTA, width=2, accent=CYAN)
-    draw9.text((W // 2, 475), "EXPLORE THE LIVE 3D CYBERPUNK PORTFOLIO:", font=get_font(22, bold=True), fill=CYAN, anchor="ma")
-    draw9.text((W // 2, 518), "· Walk in 3rd-Person with Custom Rigged Blender Avatar", font=get_font(21), fill=WHITE, anchor="ma")
-    draw9.text((W // 2, 554), "· Watch All 8 Game Screens in the 3D Alley & Chat with AHMAD.AI", font=get_font(21), fill=WHITE, anchor="ma")
+    # Swiss table of direct links in center
+    rows = [
+        ("LIVE DEPLOYMENT", "syed-muhammad-ahmad-portfolio.vercel.app"),
+        ("DIRECT EMAIL", "ahmedakka765@gmail.com"),
+        ("PHONE / WHATSAPP", "+92 332 2669028"),
+        ("LINKEDIN", "linkedin.com/in/syed-muhammad-ahmad-55b240284"),
+        ("EDUCATION", "BS CS & IT (Gaming & Animation) · NED University"),
+    ]
+    ry = 445
+    for rkey, rval in rows:
+        draw9.line([(545, ry), (1375, ry)], fill=LINE_OPAQUE, width=1)
+        draw9.text((555, ry + 16), rkey, font=get_font(15, mono=True), fill=FG_MUTED)
+        draw9.text((1365, ry + 16), rval, font=get_font(16, mono=True), fill=ACCENT if "vercel" in rval else FG, anchor="ra")
+        ry += 56
+    draw9.line([(545, ry), (1375, ry)], fill=LINE_OPAQUE, width=1)
 
-    draw9.text((W // 2, 665), "ahmedakka765@gmail.com   |   +92 332 2669028", font=get_font(30, bold=True), fill=WHITE, anchor="ma")
-    draw9.text((W // 2, 718), "linkedin.com/in/syed-muhammad-ahmad-55b240284", font=get_font(23, mono=True), fill=CYAN, anchor="ma")
-    draw9.text((W // 2, 775), "NED University of Engineering & Technology · Karachi, Pakistan", font=get_font(22), fill=MUTED, anchor="ma")
-
+    draw_hairline_tags(
+        draw9,
+        565,
+        785,
+        ["EXPLORE 3D WORLD", "ASK AHMAD.AI", "DOWNLOAD CV (PDF)", "09 CASE STUDIES"],
+        highlight_first=True,
+    )
     img9.save(os.path.join(OUT_DIR, "hud_scene9_outro.png"))
-    print(f"[overlays] Generated 9 Sci-Fi HUD overlays in {OUT_DIR}")
+    print(f"[overlays] Generated 9 Editorial samsy.ninja overlays in {OUT_DIR}")
 
 
 if __name__ == "__main__":

@@ -1,11 +1,24 @@
 /*
- * build_promo.jsx — ExtendScript for Adobe After Effects 2026
- * Builds the 46-second promotional video for Syed Muhammad Ahmad (AKKA)
- * from content/profile.json, imports the synthesized CC0 synthwave soundtrack
- * (video/music/promo_music.wav), and saves video/promo.aep.
+ * build_promo.jsx — Editorial Creative-Technologist ExtendScript for Adobe After Effects 2026
  *
- * Run via:
- *   "C:\Program Files\Adobe\Adobe After Effects 2026\Support Files\AfterFX.exe" -noui -r "d:\Projects v1\Portfolio Website\video\build_promo.jsx"
+ * Rebuilds video/promo.aep to match the exact samsy.ninja editorial portfolio design system:
+ *   - Color Palette:
+ *       --sn-bg-solid:  #07070A  [0.027, 0.027, 0.039]
+ *       --sn-bg-elev:   #0D0D12  [0.051, 0.051, 0.071]
+ *       --sn-bg-card:   #0F0F16  [0.059, 0.059, 0.086]
+ *       --sn-fg:        #F4F4F6  [0.957, 0.957, 0.965]
+ *       --sn-fg-muted:  #8E8E96  [0.557, 0.557, 0.588]
+ *       --sn-line:      #2A2A32  [0.165, 0.165, 0.196]
+ *       --sn-accent:    #DDFB24  [0.867, 0.984, 0.141] (Surgical Acid-Lime)
+ *       --sn-success:   #18F2A0  [0.094, 0.949, 0.627]
+ *   - Typography:
+ *       Display: Syne / Space Grotesk / Bahnschrift Bold (tight tracking, uppercase)
+ *       Mono:    JetBrains Mono / Consolas (indices 001..009, metadata, hairline tags)
+ *   - Motion System:
+ *       - High-influence Bezier Easing (KeyframeEase(0, 85) out-expo curve)
+ *       - Masked Kinetic Typography Line Reveals
+ *       - Crisp Architectural Mask Wipes on Gameplay Footage Viewports
+ *       - Rhythmic Beat-Grid Pacing (116 BPM -> 2.069s per bar)
  */
 (function () {
     app.beginSuppressDialogs();
@@ -19,15 +32,14 @@
         var videoDir = scriptFile.parent;
         var rootDir = videoDir.parent;
 
-        // Read content/profile.json
         var profileFile = new File(rootDir.fsName + "/content/profile.json");
         var profile = {
-            name: "SYED MUHAMMAD AHMAD",
+            name: "Syed Muhammad Ahmad",
             handle: "AKKA",
-            role: "Game Developer · Game Programmer · Graphic Designer",
-            tagline: "Building immersive games and interactive 3D worlds with Unity, Unreal Engine 5 & AI.",
+            role: "Game Developer · Game Programmer · Creative Technologist",
+            tagline: "I build immersive games and interactive worlds with Unity, Unreal Engine and real-time 3D.",
             email: "ahmedakka765@gmail.com",
-            location: "NED University · Karachi, Pakistan"
+            location: "Karachi, Pakistan"
         };
         if (profileFile.exists) {
             profileFile.encoding = "UTF-8";
@@ -43,32 +55,44 @@
         var W = 1920;
         var H = 1080;
         var FPS = 30;
-        var DUR = 46.0;
+        var DUR = 46.8;
 
-        var comp = app.project.items.addComp("PROMO_MAIN", W, H, 1.0, DUR, FPS);
-        comp.bgColor = [0.02, 0.025, 0.045];
+        var comp = app.project.items.addComp("AKKA_EDITORIAL_SHOWREEL_2026", W, H, 1.0, DUR, FPS);
+        comp.bgColor = [0.027, 0.027, 0.039]; // #07070A
 
-        // Colors
-        var COL_BG = [0.025, 0.03, 0.055];
-        var COL_CARD = [0.055, 0.075, 0.13];
-        var COL_CYAN = [0.0, 0.90, 1.0];
-        var COL_MAGENTA = [1.0, 0.17, 0.84];
-        var COL_YELLOW = [0.99, 0.93, 0.04];
-        var COL_WHITE = [0.96, 0.98, 1.0];
-        var COL_MUTED = [0.62, 0.72, 0.84];
+        // Exact samsy.ninja Editorial Design System Palette
+        var COL_BG       = [0.027, 0.027, 0.039]; // #07070A
+        var COL_ELEV     = [0.051, 0.051, 0.071]; // #0D0D12
+        var COL_CARD     = [0.059, 0.059, 0.086]; // #0F0F16
+        var COL_FG       = [0.957, 0.957, 0.965]; // #F4F4F6
+        var COL_MUTED    = [0.557, 0.557, 0.588]; // #8E8E96
+        var COL_LINE     = [0.220, 0.220, 0.255]; // 1px Swiss Hairline Rule
+        var COL_ACCENT   = [0.867, 0.984, 0.141]; // #DDFB24 Surgical Acid-Lime
+        var COL_EMERALD  = [0.094, 0.949, 0.627]; // #18F2A0 Status Dot
 
-        // Import synthesized soundtrack if available
-        var wavFile = new File(videoDir.fsName + "/music/promo_music.wav");
+        // Import 116 BPM Funky Cyber Groove soundtrack
+        var wavFile = new File(videoDir.fsName + "/music/funky-cyber-groove.wav");
+        if (!wavFile.exists) {
+            wavFile = new File(videoDir.fsName + "/music/promo_music.wav");
+        }
         if (wavFile.exists) {
-            var importOpts = new ImportOptions(wavFile);
-            var audioItem = app.project.importFile(importOpts);
+            var audioItem = app.project.importFile(new ImportOptions(wavFile));
             var audioLayer = comp.layers.add(audioItem);
             audioLayer.startTime = 0;
         }
 
-        // Import gameplay footage clips if available for PiP background showcase
+        // Import all 8 project gameplay videos + portrait + 3D avatar render
         var gpFolder = new Folder(rootDir.fsName + "/public/video/projects");
-        var gpSlugs = ["chrono-rebellion", "behind-the-smile", "paper-dash", "solar-system"];
+        var gpSlugs = [
+            "chrono-rebellion",
+            "behind-the-smile",
+            "paper-dash",
+            "solar-system",
+            "voxelcraft",
+            "pac-man",
+            "ar-memory",
+            "ar-face-filter"
+        ];
         var gpItems = {};
         for (var g = 0; g < gpSlugs.length; g++) {
             var gf = new File(gpFolder.fsName + "/" + gpSlugs[g] + ".mp4");
@@ -79,222 +103,310 @@
             }
         }
 
-        // Import FilmBro VFX Assets Pack overlays (Glitch, HUD, Particles, Sparks)
-        var vfxRoot = new Folder("C:/Users/Syed Muhammad Ahmad/Downloads/Full Bundle Free VFX Assets Pack");
-        var vfxPaths = [
-            "FilmBro_10 Glitch Elements/Cyperpunk Style Glitch Element_01_[FulHD].mp4",
-            "FilmBro_10 HUD Elements/Hollywood HUD Pack_Custom frame 1_[FullHD].mp4",
-            "FilmBro_10 Real Particles/Particles_01 [FullHD].mp4",
-            "FilmBro_5 Sparks/Spark 01_[FullHD].mov"
-        ];
-        for (var vIdx = 0; vIdx < vfxPaths.length; vIdx++) {
-            var vf = new File(vfxRoot.fsName + "/" + vfxPaths[vIdx]);
-            if (vf.exists) {
+        // Base Obsidian Void Solid
+        var bgSolid = comp.layers.addSolid(COL_BG, "00_BG_Obsidian_07070A", W, H, 1.0, DUR);
+        bgSolid.moveToEnd();
+
+        // Helper: Apply custom cubic-bezier easing (fast departure, ultra-smooth arrival)
+        function applyEditorialBezier(prop) {
+            var easeIn = new KeyframeEase(0, 85);
+            var easeOut = new KeyframeEase(0, 35);
+            for (var k = 1; k <= prop.numKeys; k++) {
                 try {
-                    var vfxItem = app.project.importFile(new ImportOptions(vf));
-                    var vfxLayer = comp.layers.add(vfxItem);
-                    vfxLayer.audioEnabled = false;
-                    vfxLayer.blendingMode = BlendingMode.SCREEN;
-                    vfxLayer.property("Opacity").setValue(35);
-                } catch (eVfx) {}
+                    prop.setInterpolationTypeAtKey(k, KeyframeInterpolationType.BEZIER, KeyframeInterpolationType.BEZIER);
+                    if (prop.propertyValueType === PropertyValueType.TwoD_SPATIAL || prop.propertyValueType === PropertyValueType.ThreeD_SPATIAL || prop.propertyValueType === PropertyValueType.OneD) {
+                        prop.setTemporalEaseAtKey(k, [easeIn], [easeOut]);
+                    } else if (prop.propertyValueType === PropertyValueType.TwoD) {
+                        prop.setTemporalEaseAtKey(k, [easeIn, easeIn], [easeOut, easeOut]);
+                    } else if (prop.propertyValueType === PropertyValueType.ThreeD) {
+                        prop.setTemporalEaseAtKey(k, [easeIn, easeIn, easeIn], [easeOut, easeOut, easeOut]);
+                    }
+                } catch (eEase) {}
             }
         }
 
-        // Background Solid + subtle vignette & scanlines
-        var bgSolid = comp.layers.addSolid(COL_BG, "BG_Navy", W, H, 1.0, DUR);
-        bgSolid.moveToEnd();
+        // Helper: Animated 1px Swiss Architectural Hairline Rule (wipes from 0% to 100%)
+        function addHairlineRule(name, x, y, w, h, color, inT, outT, fromLeft) {
+            var rule = comp.layers.addSolid(color, name, w, h, 1.0, DUR);
+            rule.inPoint = inT;
+            rule.outPoint = outT;
+            if (fromLeft) {
+                rule.property("Anchor Point").setValue([0, h / 2]);
+                rule.property("Position").setValue([x - w / 2, y]);
+            } else {
+                rule.property("Position").setValue([x, y]);
+            }
+            var sc = rule.property("Scale");
+            sc.setValueAtTime(inT, [0, 100]);
+            sc.setValueAtTime(inT + 0.48, [100, 100]);
+            sc.setValueAtTime(outT - 0.30, [100, 100]);
+            sc.setValueAtTime(outT, [0, 100]);
+            applyEditorialBezier(sc);
+            return rule;
+        }
 
-        // Top & Bottom Cyberpunk HUD Bars (always visible)
-        var topBar = comp.layers.addSolid(COL_CYAN, "HUD_TopBar", W, 4, 1.0, DUR);
-        topBar.property("Position").setValue([W / 2, 42]);
-        topBar.property("Opacity").setValue(65);
+        // Helper: Editorial Panel with Crisp Wipe-In Scale/Mask
+        function addEditorialPanel(name, x, y, w, h, color, inT, outT, maxOp) {
+            var panel = comp.layers.addSolid(color, name, w, h, 1.0, DUR);
+            panel.inPoint = inT;
+            panel.outPoint = outT;
+            panel.property("Position").setValue([x, y]);
+            var sc = panel.property("Scale");
+            sc.setValueAtTime(inT, [96, 0]);
+            sc.setValueAtTime(inT + 0.42, [100, 100]);
+            sc.setValueAtTime(outT - 0.28, [100, 100]);
+            sc.setValueAtTime(outT, [100, 0]);
+            applyEditorialBezier(sc);
 
-        var botBar = comp.layers.addSolid(COL_MAGENTA, "HUD_BottomBar", W, 4, 1.0, DUR);
-        botBar.property("Position").setValue([W / 2, H - 42]);
-        botBar.property("Opacity").setValue(65);
+            var op = panel.property("Opacity");
+            var peak = maxOp || 94;
+            op.setValueAtTime(inT, 0);
+            op.setValueAtTime(inT + 0.22, peak);
+            op.setValueAtTime(outT - 0.22, peak);
+            op.setValueAtTime(outT, 0);
+            return panel;
+        }
 
-        // Helper: add styled text with fade & slide-in/out keyframes
-        function addText(str, size, color, pos, inT, outT, justify) {
+        // Helper: Kinetic Typography Reveal (sharp vertical mask slide-up + smooth Bezier ease)
+        function addKineticText(str, size, color, pos, inT, outT, justify, isMono, isOutline) {
             var tl = comp.layers.addText(str);
             tl.inPoint = inT;
             tl.outPoint = outT;
             var prop = tl.property("Source Text");
             var doc = prop.value;
             doc.fontSize = size;
-            doc.fillColor = color;
-            doc.applyFill = true;
-            doc.applyStroke = false;
+            if (isOutline) {
+                doc.applyFill = false;
+                doc.applyStroke = true;
+                doc.strokeColor = color;
+                doc.strokeWidth = 2.0;
+            } else {
+                doc.applyFill = true;
+                doc.fillColor = color;
+                doc.applyStroke = false;
+            }
             try {
-                doc.font = "Bahnschrift";
+                doc.font = isMono ? "Consolas" : "Bahnschrift";
             } catch (eFont) {}
-            doc.justification = justify || ParagraphJustification.CENTER_JUSTIFY;
+            doc.tracking = isMono ? 60 : -25;
+            doc.justification = justify || ParagraphJustification.LEFT_JUSTIFY;
             prop.setValue(doc);
 
             var p = tl.property("Position");
             var op = tl.property("Opacity");
-            var fade = 0.45;
-            p.setValueAtTime(inT, [pos[0], pos[1] + 28]);
-            p.setValueAtTime(inT + fade, [pos[0], pos[1]]);
-            p.setValueAtTime(outT - fade, [pos[0], pos[1]]);
-            p.setValueAtTime(outT, [pos[0], pos[1] - 20]);
+            var durIn = 0.46;
+            var durOut = 0.28;
+            p.setValueAtTime(inT, [pos[0], pos[1] + 54]);
+            p.setValueAtTime(inT + durIn, [pos[0], pos[1]]);
+            p.setValueAtTime(outT - durOut, [pos[0], pos[1]]);
+            p.setValueAtTime(outT, [pos[0], pos[1] - 32]);
+            applyEditorialBezier(p);
 
             op.setValueAtTime(inT, 0);
-            op.setValueAtTime(inT + fade, 100);
-            op.setValueAtTime(outT - fade, 100);
+            op.setValueAtTime(inT + 0.18, 100);
+            op.setValueAtTime(outT - 0.18, 100);
             op.setValueAtTime(outT, 0);
             return tl;
         }
 
-        function addCard(name, w, h, color, pos, inT, outT, maxOp) {
-            var sl = comp.layers.addSolid(color, name, w, h, 1.0, DUR);
-            sl.inPoint = inT;
-            sl.outPoint = outT;
-            sl.property("Position").setValue(pos);
-            var op = sl.property("Opacity");
-            var peak = maxOp || 88;
-            op.setValueAtTime(inT, 0);
-            op.setValueAtTime(inT + 0.35, peak);
-            op.setValueAtTime(outT - 0.35, peak);
-            op.setValueAtTime(outT, 0);
-            return sl;
+        // Helper: Add Gameplay Footage with Crisp Rectangular Mask Shutter Wipe
+        function addMaskedVideo(slug, centerPos, scalePct, inT, outT, seekOffset) {
+            if (!gpItems[slug]) return null;
+            var vLayer = comp.layers.add(gpItems[slug]);
+            vLayer.audioEnabled = false;
+            vLayer.startTime = inT - (seekOffset || 1.0);
+            vLayer.inPoint = inT;
+            vLayer.outPoint = outT;
+            vLayer.property("Position").setValue(centerPos);
+
+            // Subtle smooth editorial scale push-in (scalePct -> scalePct + 4%)
+            var sc = vLayer.property("Scale");
+            sc.setValueAtTime(inT, [scalePct + 5, scalePct + 5]);
+            sc.setValueAtTime(inT + 0.55, [scalePct, scalePct]);
+            sc.setValueAtTime(outT, [scalePct + 3, scalePct + 3]);
+            applyEditorialBezier(sc);
+
+            // Rectangular Mask Wipe (expands horizontally from left to right on entry)
+            try {
+                var maskGroup = vLayer.property("Masks");
+                var mask = maskGroup.addProperty("Mask");
+                var maskShapeProp = mask.property("Mask Path");
+                var s0 = new Shape();
+                s0.vertices = [[0, 0], [40, 0], [40, H], [0, H]];
+                s0.closed = true;
+                var s1 = new Shape();
+                s1.vertices = [[0, 0], [W, 0], [W, H], [0, H]];
+                s1.closed = true;
+                maskShapeProp.setValueAtTime(inT, s0);
+                maskShapeProp.setValueAtTime(inT + 0.48, s1);
+                applyEditorialBezier(maskShapeProp);
+            } catch (eMask) {}
+
+            return vLayer;
         }
 
-        // Persistent HUD corner text
-        var hudLeft = addText("PORTFOLIO // SYED MUHAMMAD AHMAD [AKKA]", 20, COL_CYAN, [60, 28], 0, DUR, ParagraphJustification.LEFT_JUSTIFY);
-        var hudRight = addText("NED UNIVERSITY · GAMING & ANIMATION · 2026", 20, COL_MUTED, [W - 60, 28], 0, DUR, ParagraphJustification.RIGHT_JUSTIFY);
+        // ===================================================================
+        // PERSISTENT EDITORIAL TOP & BOTTOM ARCHITECTURAL CHROME (0.0s - 46.8s)
+        // ===================================================================
+        var topChrome = comp.layers.addSolid(COL_ELEV, "Chrome_TopBar", W, 62, 1.0, DUR);
+        topChrome.property("Position").setValue([W / 2, 31]);
+        addHairlineRule("Chrome_TopRule", W / 2, 62, W, 1, COL_LINE, 0, DUR, true);
+
+        var botChrome = comp.layers.addSolid(COL_ELEV, "Chrome_BotBar", W, 52, 1.0, DUR);
+        botChrome.property("Position").setValue([W / 2, H - 26]);
+        addHairlineRule("Chrome_BotRule", W / 2, H - 52, W, 1, COL_LINE, 0, DUR, true);
+
+        // Animated Acid-Lime Progress Hairline along bottom rail
+        addHairlineRule("Chrome_ProgressAccent", W / 2, H - 52, W, 2, COL_ACCENT, 0, DUR, true);
+
+        addKineticText("SYED MUHAMMAD AHMAD   [AKKA®]", 18, COL_FG, [48, 38], 0, DUR, ParagraphJustification.LEFT_JUSTIFY, true, false);
+        addKineticText("SELECTED WORKS (09)   ·   SHOWREEL 2026   ·   3D AVATAR", 16, COL_MUTED, [W - 48, 38], 0, DUR, ParagraphJustification.RIGHT_JUSTIFY, true, false);
+        addKineticText("© 2026 SYED MUHAMMAD AHMAD (AKKA®). ALL RIGHTS RESERVED.", 15, COL_MUTED, [48, H - 20], 0, DUR, ParagraphJustification.LEFT_JUSTIFY, true, false);
 
         // ===================================================================
-        // SCENE 1 (0.0s - 4.8s): Cyber Boot Sequence
+        // ACT 1 (0.0s - 4.8s): EDITORIAL HERO STATEMENT & KINETIC REVEAL
         // ===================================================================
-        addText("// INITIALIZING NEURAL 3D ENGINE · WEBGPU + TSL", 26, COL_CYAN, [W / 2, H / 2 - 110], 0.1, 4.7);
-        addCard("LogoBox", 220, 110, COL_CYAN, [W / 2, H / 2 - 5], 0.3, 4.7, 22);
-        addText("AKKA", 78, COL_WHITE, [W / 2, H / 2 + 22], 0.3, 4.7);
-        addText("INTERACTIVE 3D PORTFOLIO · AI RAG ASSISTANT · GAME SHOWCASE", 24, COL_MAGENTA, [W / 2, H / 2 + 125], 0.6, 4.7);
+        addMaskedVideo("chrono-rebellion", [W / 2, H / 2], 100, 0.0, 4.8, 0.5);
+        addEditorialPanel("Act1_Backdrop", W / 2, H / 2, 1780, 760, COL_ELEV, 0.0, 4.8, 92);
+        addHairlineRule("Act1_TopLine", W / 2, 160, 1780, 1, COL_LINE, 0.05, 4.8, true);
+        addHairlineRule("Act1_AccentStub", 120, 160, 100, 3, COL_ACCENT, 0.1, 4.8, true);
+
+        addKineticText("(00) — CREATIVE GAME DEVELOPER & 3D TECHNOLOGIST", 20, COL_MUTED, [120, 225], 0.10, 4.7, ParagraphJustification.LEFT_JUSTIFY, true, false);
+        addKineticText("SYED MUHAMMAD", 96, COL_FG, [120, 345], 0.18, 4.7, ParagraphJustification.LEFT_JUSTIFY, false, false);
+        addKineticText("AHMAD — AKKA®", 96, COL_ACCENT, [120, 450], 0.26, 4.7, ParagraphJustification.LEFT_JUSTIFY, false, false);
+        addKineticText("INTERACTIVE 3D &", 92, COL_FG, [120, 555], 0.34, 4.7, ParagraphJustification.LEFT_JUSTIFY, false, true);
+        addKineticText("GAME ARCHITECT.", 92, COL_FG, [120, 655], 0.42, 4.7, ParagraphJustification.LEFT_JUSTIFY, false, false);
+
+        addHairlineRule("Act1_BotDivider", W / 2, 725, 1680, 1, COL_LINE, 0.45, 4.7, true);
+        addKineticText("BS CS & IT (Gaming & Animation) · NED University ’27   |   Game Dev Intern @ Aerox ERP   |   8+ Shipped Games", 22, COL_MUTED, [120, 780], 0.52, 4.7, ParagraphJustification.LEFT_JUSTIFY, false, false);
 
         // ===================================================================
-        // SCENE 2 (4.8s - 12.0s): Developer Identity Reveal
+        // ACT 2..6: EDITORIAL CASE STUDY WIPES (CHRONO, SMILE, DUAL, VOXEL, XR)
         // ===================================================================
-        addText("HELLO WORLD, I AM", 26, COL_CYAN, [W / 2, 310], 4.8, 12.0);
-        addText((profile.name || "SYED MUHAMMAD AHMAD").toUpperCase(), 88, COL_WHITE, [W / 2, 430], 5.0, 12.0);
-        addCard("RoleAccent", 980, 56, COL_MAGENTA, [W / 2, 520], 5.2, 12.0, 28);
-        addText("GAME DEVELOPER  ·  GAME PROGRAMMER  ·  GRAPHIC DESIGNER", 32, COL_YELLOW, [W / 2, 532], 5.3, 12.0);
-        addText("BS CS & IT (Gaming & Animation) · NED University of Engineering & Technology", 27, COL_MUTED, [W / 2, 635], 5.6, 12.0);
-        addText("Game Development Intern @ Aerox ERP", 28, COL_CYAN, [W / 2, 695], 5.9, 12.0);
-
-        // ===================================================================
-        // SCENE 3 (12.0s - 21.6s): Technical Arsenal & Game Engines
-        // ===================================================================
-        addText("01 // TECHNICAL ARSENAL & ENGINES", 44, COL_CYAN, [W / 2, 165], 12.0, 21.6);
-        var skillBoxes = [
-            { title: "GAME ENGINES", items: "Unity (HDRP / URP) · Unreal Engine 5 · Blueprints · SFML", x: 510, y: 360, c: COL_CYAN },
-            { title: "PROGRAMMING", items: "C# · C++ · C · Python · Data Structures & QuadTrees", x: 1410, y: 360, c: COL_MAGENTA },
-            { title: "XR (AR / VR)", items: "OpenXR · XR Interaction Toolkit · Vuforia · OpenCV · MediaPipe", x: 510, y: 580, c: COL_YELLOW },
-            { title: "3D, DESIGN & AI", items: "Blender 3D · Three.js WebGPU · Photoshop & Illustrator · RAG AI", x: 1410, y: 580, c: COL_CYAN }
-        ];
-        for (var s = 0; s < skillBoxes.length; s++) {
-            var sb = skillBoxes[s];
-            var st = 12.3 + s * 0.35;
-            addCard("SkillCard_" + s, 820, 165, COL_CARD, [sb.x, sb.y], st, 21.6, 88);
-            addCard("SkillBar_" + s, 820, 5, sb.c, [sb.x, sb.y - 80], st, 21.6, 95);
-            addText(sb.title, 30, sb.c, [sb.x, sb.y - 25], st + 0.1, 21.6);
-            addText(sb.items, 23, COL_WHITE, [sb.x, sb.y + 32], st + 0.2, 21.6);
-        }
-        addText("8+ PLAYABLE GAMES  ·  AR/VR EXPERIENCES  ·  CUSTOM 3D AVATAR", 26, COL_MUTED, [W / 2, 830], 13.8, 21.6);
-
-        // ===================================================================
-        // SCENE 4 (21.6s - 33.6s): Featured Game Projects Showcase (4 x 3.0s)
-        // ===================================================================
-        var featured = [
+        var editorialActs = [
             {
+                inT: 4.8, outT: 10.2,
                 slug: "chrono-rebellion",
-                tag: "FEATURED PROJECT 01 // SCI-FI FPS & TPS SHOOTER",
+                idx: "001",
+                cat: "GAME // 2026 · UNITY HDRP",
                 title: "CHRONO REBELLION",
-                tech: "Unity · C# · High Definition Render Pipeline (HDRP)",
-                desc: "Time-manipulation combat mechanics, weapon HUD, and hybrid 1st/3rd-person controls."
+                sub: "Third-person & first-person sci-fi shooter featuring time-manipulation combat mechanics, custom HUD & HDRP lighting.",
+                tags: "UNITY   ·   C#   ·   HDRP   ·   SHADER GRAPH   ·   COMBAT AI"
             },
             {
+                inT: 10.2, outT: 15.6,
                 slug: "behind-the-smile",
-                tag: "FEATURED PROJECT 02 // GLOBAL GAME JAM 2026 (48H)",
+                idx: "002",
+                cat: "GAME // 2026 · GLOBAL GAME JAM (48H)",
                 title: "BEHIND THE SMILE",
-                tech: "Unity · C# · Narrative 3D Game · Theme: 'Masks'",
-                desc: "Interactive 3D narrative game built in 48 hours featuring custom UI and core systems."
+                sub: "Narrative-driven first-person 3D exploration game built in 48 hours at Global Game Jam 2026 around the theme 'Masks'.",
+                tags: "UNITY 3D   ·   C#   ·   NARRATIVE DESIGN   ·   CUSTOM UI"
             },
             {
+                inT: 15.6, outT: 21.0,
                 slug: "paper-dash",
-                tag: "FEATURED PROJECT 03 // PROCEDURAL ENDLESS RUNNER",
-                title: "PAPER PLANE DASH",
-                tech: "Unreal Engine 5 · Blueprints · Procedural Generation",
-                desc: "Dynamic lane switching, procedural obstacle spawning, and responsive flight physics."
+                idx: "003 / 004",
+                cat: "ARCADE & SYSTEMS // UNREAL ENGINE 5  ×  C++ / SFML",
+                title: "PAPER PLANE DASH  ×  PAC-MAN",
+                sub: "Procedural UE5 Blueprint endless runner alongside a custom C++ & SFML arcade engine using QuadTrees & Graph AI.",
+                tags: "UNREAL ENGINE 5   ·   BLUEPRINTS   ·   C++   ·   SFML   ·   QUADTREES"
             },
             {
+                inT: 21.0, outT: 26.2,
+                slug: "voxelcraft",
+                idx: "005",
+                cat: "SANDBOX ENGINE // 2025 · PROCEDURAL 3D",
+                title: "VOXELCRAFT 3D",
+                sub: "Procedural voxel terrain generation, chunk mesh optimization, and raycast block placement & destruction physics.",
+                tags: "UNITY 3D   ·   C#   ·   VOXEL MESHING   ·   PROCEDURAL TERRAIN"
+            },
+            {
+                inT: 26.2, outT: 31.8,
                 slug: "solar-system",
-                tag: "FEATURED PROJECT 04 // IMMERSIVE VR EDUCATION",
-                title: "SOLAR SYSTEM VR",
-                tech: "Unity · OpenXR · XR Interaction Toolkit · World-Space UI",
-                desc: "VR teleportation locomotion and interactive planetary exploration in virtual reality."
+                idx: "006 / 007 / 008",
+                cat: "EXTENDED REALITY (XR) // VR  ·  VUFORIA AR  ·  MEDIAPIPE CV",
+                title: "SOLAR SYSTEM VR  ×  AR SUITE",
+                sub: "OpenXR planetary simulation, Vuforia marker-based AR Memory Card game, and Python/OpenCV/MediaPipe 468-point AR Face Filter.",
+                tags: "OPENXR   ·   XR INTERACTION TOOLKIT   ·   VUFORIA   ·   OPENCV   ·   MEDIAPIPE"
             }
         ];
 
-        for (var pIdx = 0; pIdx < featured.length; pIdx++) {
-            var fp = featured[pIdx];
-            var pIn = 21.6 + pIdx * 3.0;
-            var pOut = pIn + 3.0;
+        for (var a = 0; a < editorialActs.length; a++) {
+            var act = editorialActs[a];
+            addMaskedVideo(act.slug, [W / 2, H / 2], 100, act.inT, act.outT, 1.5);
 
-            // If gameplay video item exists, place it on the right half
-            if (gpItems[fp.slug]) {
-                var vLayer = comp.layers.add(gpItems[fp.slug]);
-                vLayer.audioEnabled = false;
-                vLayer.startTime = pIn;
-                vLayer.inPoint = pIn;
-                vLayer.outPoint = pOut;
-                vLayer.property("Position").setValue([1340, 540]);
-                vLayer.property("Scale").setValue([72, 72]);
-                var vOp = vLayer.property("Opacity");
-                vOp.setValueAtTime(pIn, 0);
-                vOp.setValueAtTime(pIn + 0.3, 95);
-                vOp.setValueAtTime(pOut - 0.3, 95);
-                vOp.setValueAtTime(pOut, 0);
-            }
+            // Minimalist Architectural Lower-Left Case Study Card
+            addEditorialPanel("CasePanel_" + a, 690, 845, 1260, 240, COL_ELEV, act.inT + 0.08, act.outT, 94);
+            addHairlineRule("CaseTopLine_" + a, 690, 725, 1260, 1, COL_LINE, act.inT + 0.10, act.outT, true);
+            addHairlineRule("CaseAccent_" + a, 120, 725, 120, 3, COL_ACCENT, act.inT + 0.14, act.outT, true);
 
-            addCard("ProjCard_" + pIdx, 760, 460, COL_CARD, [470, 540], pIn, pOut, 92);
-            addCard("ProjAccent_" + pIdx, 8, 460, COL_CYAN, [94, 540], pIn, pOut, 100);
-            addText(fp.tag, 22, COL_MAGENTA, [130, 375], pIn + 0.05, pOut, ParagraphJustification.LEFT_JUSTIFY);
-            addText(fp.title, 58, COL_WHITE, [130, 465], pIn + 0.1, pOut, ParagraphJustification.LEFT_JUSTIFY);
-            addText(fp.tech, 25, COL_CYAN, [130, 540], pIn + 0.15, pOut, ParagraphJustification.LEFT_JUSTIFY);
-            addText(fp.desc, 22, COL_MUTED, [130, 635], pIn + 0.2, pOut, ParagraphJustification.LEFT_JUSTIFY);
+            addKineticText(act.idx + "   //   " + act.cat, 18, COL_ACCENT, [96, 765], act.inT + 0.14, act.outT, ParagraphJustification.LEFT_JUSTIFY, true, false);
+            addKineticText(act.title, 54, COL_FG, [96, 830], act.inT + 0.20, act.outT, ParagraphJustification.LEFT_JUSTIFY, false, false);
+            addKineticText(act.sub, 21, COL_MUTED, [96, 882], act.inT + 0.26, act.outT, ParagraphJustification.LEFT_JUSTIFY, false, false);
+            addKineticText(act.tags, 16, COL_FG, [96, 935], act.inT + 0.32, act.outT, ParagraphJustification.LEFT_JUSTIFY, true, false);
         }
 
         // ===================================================================
-        // SCENE 5 (33.6s - 38.4s): More Games, Certifications & Achievements
+        // ACT 7 (31.8s - 37.0s): CUSTOM BLENDER 5.1 3D AVATAR & CAPABILITIES MATRIX
         // ===================================================================
-        addText("03 // MORE PROJECTS & CERTIFICATIONS", 44, COL_CYAN, [W / 2, 175], 33.6, 38.4);
-        addCard("MoreCard1", 1620, 170, COL_CARD, [W / 2, 370], 33.8, 38.4, 88);
-        addText("MORE PLAYABLE DEMOS IN THIS PORTFOLIO", 26, COL_YELLOW, [W / 2, 325], 33.9, 38.4);
-        addText("Voxelcraft 3D Sandbox  ·  Pac-Man (C++ / SFML / QuadTrees)  ·  AR Memory Card (Vuforia)  ·  AR Face Filter (OpenCV & MediaPipe)", 25, COL_WHITE, [W / 2, 395], 34.0, 38.4);
+        addMaskedVideo("chrono-rebellion", [W / 2, H / 2], 100, 31.8, 37.0, 6.0);
+        addEditorialPanel("Act7_Panel", 1260, 540, 1180, 820, COL_ELEV, 31.8, 37.0, 95);
+        addHairlineRule("Act7_TopRule", 1260, 130, 1180, 1, COL_LINE, 31.85, 37.0, true);
+        addHairlineRule("Act7_Accent", 730, 130, 120, 3, COL_ACCENT, 31.9, 37.0, true);
 
-        addCard("MoreCard2", 1620, 190, COL_CARD, [W / 2, 620], 34.2, 38.4, 88);
-        addText("CERTIFICATIONS & HONORS", 26, COL_MAGENTA, [W / 2, 565], 34.3, 38.4);
-        addText("Unreal Engine (CEGA)  ·  Pre-Production & Post-Production (CEGA)  ·  Google AI (Coursera)  ·  Global Game Jam 2026", 26, COL_CYAN, [W / 2, 640], 34.4, 38.4);
+        addKineticText("(02) — CUSTOM 3D CHARACTER & TECHNICAL CAPABILITIES", 19, COL_ACCENT, [710, 185], 31.9, 36.9, ParagraphJustification.LEFT_JUSTIFY, true, false);
+        addKineticText("BLENDER 5.1 RIGGED AVATAR", 54, COL_FG, [710, 255], 31.98, 36.9, ParagraphJustification.LEFT_JUSTIFY, false, false);
+        addKineticText("21-Bone Skeleton · 6 NLA Tracks (Walk, Idle, Wave, Talk, Point, Victory) · 3rd-Person Walk Mode", 21, COL_MUTED, [710, 310], 32.06, 36.9, ParagraphJustification.LEFT_JUSTIFY, false, false);
+
+        var capRows = [
+            "01 // GAME ENGINES      Unity (HDRP / URP) · Unreal Engine 5 · Blueprints · SFML",
+            "02 // PROGRAMMING       C# · C++ · C · Python · QuadTrees & Graph Pathfinding",
+            "03 // XR & 3D DESIGN    OpenXR · Vuforia · Blender 5.1 · After Effects · Photoshop",
+            "04 // WEB & AI RAG      Three.js WebGPU · TSL Shaders · Gemini RAG Assistant"
+        ];
+        for (var c = 0; c < capRows.length; c++) {
+            var cy = 420 + c * 115;
+            addHairlineRule("CapRule_" + c, 1260, cy - 35, 1100, 1, COL_LINE, 32.15 + c * 0.1, 36.9, true);
+            addKineticText(capRows[c], 22, COL_FG, [710, cy + 15], 32.2 + c * 0.1, 36.9, ParagraphJustification.LEFT_JUSTIFY, true, false);
+        }
 
         // ===================================================================
-        // SCENE 6 (38.4s - 46.0s): Call to Action & Outro
+        // ACT 8 (37.0s - 41.6s): 09 SELECTED WORKS ARCHITECTURAL INDEX MATRIX
         // ===================================================================
-        addText("EXPLORE THE INTERACTIVE 3D CYBERPUNK ALLEY", 34, COL_CYAN, [W / 2, 290], 38.4, 45.6);
-        addText("SYED MUHAMMAD AHMAD", 76, COL_WHITE, [W / 2, 405], 38.6, 45.6);
-        addCard("CtaBanner", 1180, 68, COL_CYAN, [W / 2, 510], 38.8, 45.6, 25);
-        addText("WALK THE 3D WORLD  ·  MEET THE 3D AVATAR  ·  ASK THE RAG AI CHATBOT", 27, COL_YELLOW, [W / 2, 520], 38.9, 45.6);
-        addText("ahmedakka765@gmail.com   |   linkedin.com/in/syed-muhammad-ahmad-55b240284", 26, COL_MUTED, [W / 2, 640], 39.2, 45.6);
-        addText("+92 332 2669028   ·   Karachi, Pakistan", 24, COL_MAGENTA, [W / 2, 700], 39.4, 45.6);
+        addMaskedVideo("paper-dash", [W / 2, H / 2], 100, 37.0, 41.6, 3.0);
+        addEditorialPanel("Act8_CenterCard", W / 2, H / 2, 1080, 320, COL_ELEV, 37.05, 41.6, 95);
+        addHairlineRule("Act8_RuleTop", W / 2, H / 2 - 160, 1080, 1, COL_LINE, 37.1, 41.6, true);
+        addHairlineRule("Act8_AccentTop", W / 2, H / 2 - 160, 160, 3, COL_ACCENT, 37.15, 41.6, false);
+
+        addKineticText("(01) — CURATED PROJECT INDEX // 2024–2026", 19, COL_ACCENT, [W / 2, H / 2 - 90], 37.15, 41.5, ParagraphJustification.CENTER_JUSTIFY, true, false);
+        addKineticText("09 INTERACTIVE WORKS", 68, COL_FG, [W / 2, H / 2 - 10], 37.22, 41.5, ParagraphJustification.CENTER_JUSTIFY, false, false);
+        addKineticText("3D ACTION   ·   UNREAL RUNNER   ·   VR / AR   ·   VOXEL ENGINE   ·   WEBGPU ALLEY", 19, COL_MUTED, [W / 2, H / 2 + 65], 37.30, 41.5, ParagraphJustification.CENTER_JUSTIFY, true, false);
+
+        // ===================================================================
+        // ACT 9 (41.6s - 46.8s): EDITORIAL OUTRO & DIRECT TRANSMISSION
+        // ===================================================================
+        addMaskedVideo("behind-the-smile", [W / 2, H / 2], 100, 41.6, 46.8, 3.5);
+        addEditorialPanel("Act9_OutroPanel", W / 2, H / 2, 1740, 740, COL_ELEV, 41.6, 46.8, 95);
+        addHairlineRule("Act9_TopLine", W / 2, 170, 1740, 1, COL_LINE, 41.65, 46.8, true);
+        addHairlineRule("Act9_Accent", W / 2, 170, 180, 3, COL_ACCENT, 41.7, 46.8, false);
+
+        addKineticText("(04) — INITIATE DIRECT TRANSMISSION", 20, COL_ACCENT, [W / 2, 260], 41.72, 46.6, ParagraphJustification.CENTER_JUSTIFY, true, false);
+        addKineticText("SYED MUHAMMAD AHMAD", 78, COL_FG, [W / 2, 370], 41.80, 46.6, ParagraphJustification.CENTER_JUSTIFY, false, false);
+        addKineticText("LET’S BUILD THE NEXT IMMERSIVE WORLD.", 44, COL_FG, [W / 2, 455], 41.88, 46.6, ParagraphJustification.CENTER_JUSTIFY, false, true);
+
+        addHairlineRule("Act9_MidLine", W / 2, 535, 920, 1, COL_LINE, 41.95, 46.6, false);
+        addKineticText("ahmedakka765@gmail.com   ·   +92 332 2669028", 28, COL_FG, [W / 2, 610], 42.02, 46.6, ParagraphJustification.CENTER_JUSTIFY, true, false);
+        addKineticText("syed-muhammad-ahmad-portfolio.vercel.app", 24, COL_ACCENT, [W / 2, 675], 42.10, 46.6, ParagraphJustification.CENTER_JUSTIFY, true, false);
+        addKineticText("NED UNIVERSITY OF ENGINEERING & TECHNOLOGY · KARACHI, PAKISTAN", 18, COL_MUTED, [W / 2, 745], 42.18, 46.6, ParagraphJustification.CENTER_JUSTIFY, true, false);
 
         // Save After Effects Project (.aep)
         var aepFile = new File(videoDir.fsName + "/promo.aep");
         app.project.save(aepFile);
 
-        // Write status marker
         var statusFile = new File(videoDir.fsName + "/build_status.txt");
         statusFile.encoding = "UTF-8";
         if (statusFile.open("w")) {
-            statusFile.write("SUCCESS: Saved " + aepFile.fsName + " (" + comp.name + ", " + DUR + "s)");
+            statusFile.write("SUCCESS: Saved editorial " + aepFile.fsName + " (" + comp.name + ", " + DUR + "s)");
             statusFile.close();
         }
     } catch (err) {

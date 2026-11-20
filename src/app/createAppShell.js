@@ -1,7 +1,6 @@
 import { FEATURES } from "../world/features.js";
 import { createAppUiState } from "../ui/core/appUiState.js";
 import { createHeader } from "../ui/chrome/createHeader.js";
-import { createAboutPanel } from "../ui/chrome/createAboutPanel.js";
 import { createSettingsPanel } from "../ui/chrome/createSettingsPanel.js";
 import { createAudioButton } from "../ui/chrome/createAudioButton.js";
 import {
@@ -79,7 +78,6 @@ export function createAppShell({
   const uiState = createAppUiState();
   let finishedIntro = false;
   let settingsPanelRef = null;
-  let aboutPanelRef = null;
 
   const header = FEATURES.chromeUi
     ? createHeader({
@@ -89,7 +87,6 @@ export function createAppShell({
     : null;
 
   const aboutPanel = null;
-  aboutPanelRef = null;
 
   const walkFacade = createWalkInputFacade(cameraDirector.walkControls);
 

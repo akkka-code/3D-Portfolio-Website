@@ -145,8 +145,10 @@
       "tags": ["Three.js", "WebGPU", "Blender", "After Effects", "RAG"],
       "summary": "This website: a rainy cyberpunk alley rendered with WebGPU, a custom Blender avatar, an After Effects promo and a RAG chatbot.",
       "details": "Built on Three.js TSL with GPU rain collision, wet-ground reflections and post-processing. Includes a Gemini-powered RAG assistant with source citations and a secured contact form using Resend.",
+      "video": "/video/promo.mp4",
+      "poster": "/video/promo-poster.jpg",
       "links": { "demo": "/" },
-      "featured": false
+      "featured": true
     }
   ],
   "achievements": [
