@@ -1,0 +1,10 @@
+node_modules
+.env
+.env.*
+!.env.example
+video/segments
+video/overlays
+video/music/*.wav
+blender/*.blend
+blender/*.blend1
+.git

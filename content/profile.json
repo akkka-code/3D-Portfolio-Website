@@ -1,0 +1,189 @@
+{
+  "_note": "SINGLE SOURCE OF TRUTH. The website, the RAG knowledge base (npm run ingest) and the promo video all read from this file.",
+  "name": "Syed Muhammad Ahmad",
+  "shortName": "Ahmad",
+  "handle": "AKKA",
+  "role": "Game Developer · Game Programmer · Graphic Designer",
+  "tagline": "I build immersive games and interactive worlds with Unity, Unreal Engine and real-time 3D.",
+  "location": "Karachi, Pakistan",
+  "email": "ahmedakka765@gmail.com",
+  "availability": "Open to game development internships, junior roles and collaborations",
+  "socials": {
+    "linkedin": "https://www.linkedin.com/in/syed-muhammad-ahmad-55b240284",
+    "canva": "https://portfoliobyakka.my.canva.site/"
+  },
+  "cvUrl": "/cv.pdf",
+  "photo": "/images/ahmad-2.jpg",
+  "about": [
+    "I'm an aspiring Game Developer and Programmer in the final year of a Bachelor's degree in Computer Science & Information Technology, specialising in Gaming & Animation, at NED University of Engineering & Technology in Karachi.",
+    "I have hands-on experience with Unity and Unreal Engine and I'm proficient in C, C++, C# and Python. I love building immersive games and interactive applications — from sci-fi shooters with time-manipulation mechanics to VR education experiences and AR games.",
+    "I'm eager to apply my skills in gameplay programming, AI and software development to craft engaging, polished player experiences. I also work as a graphic designer with Adobe Photoshop and Illustrator, and model 3D assets in Blender."
+  ],
+  "stats": [
+    { "label": "Game projects", "value": "8+" },
+    { "label": "Engines", "value": "Unity · UE5" },
+    { "label": "Game jams", "value": "GGJ 2026" }
+  ],
+  "skills": [
+    { "group": "Game Engines", "items": ["Unity", "Unreal Engine 5", "Blueprints", "HDRP", "SFML"] },
+    { "group": "Programming", "items": ["C#", "C++", "C", "Python", "Data Structures & Algorithms"] },
+    { "group": "XR (AR / VR)", "items": ["OpenXR", "XR Interaction Toolkit", "Vuforia", "OpenCV", "MediaPipe"] },
+    { "group": "3D & Design", "items": ["Blender", "Adobe Photoshop", "Adobe Illustrator", "After Effects", "Graphic Design"] },
+    { "group": "Gameplay Systems", "items": ["Gameplay Programming", "Game AI", "HUD / UI", "Procedural Generation", "Player Controllers"] },
+    { "group": "Web & AI", "items": ["Three.js", "JavaScript", "RAG Chatbots", "Gemini API", "Git"] }
+  ],
+  "projects": [
+    {
+      "id": "chrono-rebellion",
+      "title": "Chrono Rebellion",
+      "year": 2026,
+      "category": "Game",
+      "tags": ["Unity", "C#", "HDRP", "Shooter"],
+      "summary": "A third-person and first-person sci-fi shooter featuring time-manipulation mechanics and combat systems.",
+      "details": "Implemented gameplay logic, HUD, player controls and interactive mechanics in Unity using the High Definition Render Pipeline.",
+      "video": "/video/projects/chrono-rebellion.mp4",
+      "poster": "/video/projects/chrono-rebellion.jpg",
+      "links": {},
+      "featured": true
+    },
+    {
+      "id": "behind-the-smile",
+      "title": "Behind the Smile",
+      "year": 2026,
+      "category": "Game",
+      "tags": ["Unity", "C#", "Game Jam", "Narrative"],
+      "summary": "A narrative-driven 3D game built in 48 hours at Global Game Jam 2026 around the theme “Masks”.",
+      "details": "Collaborated with a team during Global Game Jam 2026. Implemented gameplay mechanics, player interactions, UI and core game systems.",
+      "video": "/video/projects/behind-the-smile.mp4",
+      "poster": "/video/projects/behind-the-smile.jpg",
+      "links": {},
+      "featured": true
+    },
+    {
+      "id": "paper-plane-dash",
+      "title": "Paper Plane Dash",
+      "year": 2025,
+      "category": "Game",
+      "tags": ["Unreal Engine 5", "Blueprints", "Endless Runner", "Procedural"],
+      "summary": "A third-person endless runner with procedural level generation, lane switching and obstacle avoidance.",
+      "details": "Developed Blueprint gameplay systems, HUD, scoring and player mechanics in Unreal Engine 5.",
+      "video": "/video/projects/paper-dash.mp4",
+      "poster": "/video/projects/paper-dash.jpg",
+      "links": {},
+      "featured": true
+    },
+    {
+      "id": "solar-system-vr",
+      "title": "Solar System Exploration (VR)",
+      "year": 2025,
+      "category": "XR",
+      "tags": ["Unity", "OpenXR", "XR Interaction Toolkit", "VR"],
+      "summary": "An immersive VR educational experience with teleportation and interactive planet exploration.",
+      "details": "Integrated XR interactions, locomotion and world-space UI using Unity and OpenXR.",
+      "video": "/video/projects/solar-system.mp4",
+      "poster": "/video/projects/solar-system.jpg",
+      "links": {},
+      "featured": true
+    },
+    {
+      "id": "voxelcraft-3d",
+      "title": "Voxelcraft 3D",
+      "year": 2025,
+      "category": "Game",
+      "tags": ["3D", "Voxel", "Sandbox"],
+      "summary": "A voxel-based 3D sandbox game inspired by block-building games.",
+      "details": "Gameplay footage of a voxel world with block placement and exploration.",
+      "video": "/video/projects/voxelcraft.mp4",
+      "poster": "/video/projects/voxelcraft.jpg",
+      "links": {},
+      "featured": false
+    },
+    {
+      "id": "pac-man",
+      "title": "Pac-Man",
+      "year": 2024,
+      "category": "Game",
+      "tags": ["C++", "SFML", "Game AI", "Data Structures"],
+      "summary": "A 2D Pac-Man game with enemy AI, collision detection and scoring, built with C++ and SFML.",
+      "details": "Applied graphs, QuadTrees and other data structures to optimise gameplay performance. Graphics use the Simple and Fast Multimedia Library (SFML).",
+      "video": "/video/projects/pac-man.mp4",
+      "poster": "/video/projects/pac-man.jpg",
+      "links": {},
+      "featured": false
+    },
+    {
+      "id": "ar-memory-card",
+      "title": "AR Memory Card Game",
+      "year": 2025,
+      "category": "XR",
+      "tags": ["Unity", "Vuforia", "C#", "AR"],
+      "summary": "A marker-based augmented reality memory game using the Vuforia Engine.",
+      "details": "Implemented image-target recognition, matching mechanics, animations and a scoring system.",
+      "video": "/video/projects/ar-memory.mp4",
+      "poster": "/video/projects/ar-memory.jpg",
+      "links": {},
+      "featured": false
+    },
+    {
+      "id": "ar-face-filter",
+      "title": "AR Face Filter App",
+      "year": 2025,
+      "category": "XR",
+      "tags": ["Python", "OpenCV", "MediaPipe", "Computer Vision"],
+      "summary": "A real-time AR face filter app built with Python, OpenCV and MediaPipe.",
+      "details": "Tracks facial landmarks through a webcam and applies interactive filters such as neon glasses, face frames and eye-glow effects in real time.",
+      "video": "/video/projects/ar-face-filter.mp4",
+      "poster": "/video/projects/ar-face-filter.jpg",
+      "links": {},
+      "featured": false
+    },
+    {
+      "id": "portfolio-3d",
+      "title": "Interactive 3D Portfolio",
+      "year": 2026,
+      "category": "Web",
+      "tags": ["Three.js", "WebGPU", "Blender", "After Effects", "RAG"],
+      "summary": "This website: a rainy cyberpunk alley rendered with WebGPU, a custom Blender avatar, an After Effects promo and a RAG chatbot.",
+      "details": "Built on Three.js TSL with GPU rain collision, wet-ground reflections and post-processing. Includes a Gemini-powered RAG assistant with source citations and a secured contact form using Resend.",
+      "links": { "demo": "/" },
+      "featured": false
+    }
+  ],
+  "achievements": [
+    { "title": "Global Game Jam 2026", "year": 2026, "description": "Shipped “Behind the Smile”, a narrative 3D game, in 48 hours on the theme “Masks”." },
+    { "title": "Unreal Engine — CEGA", "year": 2025, "description": "Certification in Unreal Engine from CEGA." },
+    { "title": "Pre-Production & Post-Production — CEGA", "year": 2025, "description": "Certifications in game/film pre-production and post-production from CEGA." },
+    { "title": "Google AI — Coursera", "year": 2025, "description": "Google AI certification completed on Coursera." }
+  ],
+  "education": [
+    {
+      "degree": "BS Computer Science & Information Technology — Specialisation in Gaming & Animation",
+      "institution": "NED University of Engineering & Technology, Karachi",
+      "period": "Sep 2023 – Jun 2027",
+      "details": "Final-year student focusing on game development, computer graphics, animation and AR/VR."
+    },
+    {
+      "degree": "A Levels in Computer Science",
+      "institution": "Hexis College",
+      "period": "Aug 2021 – Jun 2023",
+      "details": ""
+    },
+    {
+      "degree": "O Levels in Pre-Engineering",
+      "institution": "Beaconhouse School System",
+      "period": "Aug 2010 – May 2021",
+      "details": ""
+    }
+  ],
+  "experience": [
+    {
+      "role": "Game Development Intern",
+      "company": "Aerox ERP",
+      "period": "Oct 2026 – Present",
+      "details": "Collaborating closely with senior developers to prototype features and test builds."
+    }
+  ],
+  "certifications": ["Pre-Production — CEGA", "Post-Production — CEGA", "Unreal Engine — CEGA", "Google AI — Coursera"],
+  "languages": ["English", "Urdu", "Chinese (basic)"],
+  "interests": ["Gameplay programming", "Game AI", "AR / VR", "3D modelling", "Graphic design"]
+}
