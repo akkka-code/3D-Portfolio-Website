@@ -294,7 +294,7 @@ body.sn-mode-3d .sn-3d-return-bar {
   overflow-y: auto;
   overflow-x: hidden;
   pointer-events: auto;
-  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: var(--sn-line-strong) transparent;
   transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
@@ -321,7 +321,7 @@ body.sn-mode-3d .sn-scroll-viewport {
 
 .sn-section-header {
   display: grid;
-  grid-template-columns: 240px 1fr auto;
+  grid-template-columns: 240px 1fr;
   align-items: baseline;
   gap: 24px;
   padding-bottom: 28px;
@@ -802,7 +802,8 @@ body.pf-theme-light .sn-hero-line--accent {
    -------------------------------------------------------------------------- */
 .sn-showcase-grid {
   display: grid;
-  grid-template-columns: 1.25fr 1fr;
+  grid-template-columns: 1fr;
+  max-width: 1120px;
   gap: 32px;
   align-items: stretch;
 }
@@ -1466,31 +1467,32 @@ body.pf-theme-light .sn-field textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  margin-left: -14px;
-  margin-top: -14px;
+  width: 24px;
+  height: 24px;
+  margin-left: -12px;
+  margin-top: -12px;
   border: 1.5px solid #ffffff;
   border-radius: 50%;
-  color: #000000;
+  color: #ffffff;
   font-family: var(--sn-font-mono);
-  font-size: 9.5px;
+  font-size: 8.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   transition:
-    width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    margin 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    background 0.22s ease;
+    width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    margin 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.22s ease;
 }
 
 .sn-cursor.is-expanded .sn-cursor-ring {
-  width: 78px;
-  height: 78px;
-  margin-left: -39px;
-  margin-top: -39px;
-  background: #ffffff;
+  width: 44px;
+  height: 44px;
+  margin-left: -22px;
+  margin-top: -22px;
+  border-color: var(--sn-accent);
+  background: transparent;
 }
 
 @media (hover: none), (pointer: coarse) {

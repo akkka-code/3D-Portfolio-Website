@@ -99,22 +99,26 @@ export function createPortfolioUI({
 
     <nav class="sn-nav" aria-label="Primary navigation">
       <button type="button" class="sn-nav-link is-active" data-nav-scroll="works" data-cursor="INDEX">Works (${String(projects.length).padStart(2, "0")})</button>
-      <button type="button" class="sn-nav-link" data-nav-scroll="lab" data-cursor="REEL">Showreel & 3D Avatar</button>
+      <button type="button" class="sn-nav-link" data-nav-scroll="lab" data-cursor="REEL">Showreel</button>
       <button type="button" class="sn-nav-link" data-nav-scroll="about" data-cursor="PROFILE">Capabilities</button>
       <button type="button" class="sn-nav-link" data-nav-scroll="contact" data-cursor="CONTACT">Contact</button>
       <button type="button" class="sn-nav-btn" data-action="toggle-chat" data-cursor="AI RAG">◈ AHMAD.AI</button>
       <button type="button" class="sn-nav-btn sn-nav-btn--accent" data-action="enter-3d-world" data-cursor="WALK 3D">Explore 3D World ↗</button>
-      <button type="button" class="sn-nav-btn" data-action="toggle-audio" id="sn-audio-btn" title="Toggle Funky Cyber Groove Music">Sound: OFF</button>
+      <button type="button" class="sn-nav-btn" data-action="toggle-audio" id="sn-audio-btn" title="Toggle Background Music">Sound: OFF</button>
       <button type="button" class="sn-nav-btn" data-action="toggle-theme" id="sn-theme-btn" title="Toggle High-Contrast Light/Dark Mode">${isLightTheme ? "Dark" : "Light"}</button>
     </nav>
   `;
 
-  // Floating bar shown when inside Full 3D Walk Mode to return to Editorial Index
+  // Floating bar shown when inside Full 3D Walk Mode (unobstructed 3D Character & Gesture controls)
   const returnBar = document.createElement("div");
   returnBar.className = "sn-3d-return-bar";
   returnBar.innerHTML = `
-    <button type="button" class="sn-nav-btn sn-nav-btn--accent" data-action="exit-3d-world">← Return to Editorial Portfolio</button>
+    <button type="button" class="sn-nav-btn sn-nav-btn--accent" data-action="exit-3d-world">← Return to Portfolio</button>
     <button type="button" class="sn-nav-btn" data-action="toggle-pov" id="sn-pov-btn">View: 3RD PERSON (V)</button>
+    <button type="button" class="sn-nav-btn" data-3d-gesture="Wave">Wave</button>
+    <button type="button" class="sn-nav-btn" data-3d-gesture="Victory">Victory</button>
+    <button type="button" class="sn-nav-btn" data-3d-gesture="Point">Point</button>
+    <button type="button" class="sn-nav-btn" data-3d-gesture="Talk">Talk</button>
     <button type="button" class="sn-nav-btn" data-action="toggle-chat">◈ AHMAD.AI</button>
   `;
 
@@ -261,7 +265,6 @@ export function createPortfolioUI({
         <header class="sn-section-header">
           <span class="sn-section-index">(01) — SELECTED WORKS</span>
           <h2 class="sn-section-title">Curated Project Index</h2>
-          <span class="sn-section-meta">HOVER FOR LIVE SHADER PREVIEW · CLICK FOR CASE STUDY</span>
         </header>
 
         <div class="sn-works-toolbar">
@@ -304,70 +307,24 @@ export function createPortfolioUI({
       </section>
 
       <!-- =================================================================
-           SECTION 02: MOTION SHOWREEL & CUSTOM 3D BLENDER AVATAR STAGE
+           SECTION 02: MOTION SHOWREEL
            ================================================================= -->
       <section class="sn-section" id="sn-sec-lab">
         <header class="sn-section-header">
-          <span class="sn-section-index">(02) — MOTION & 3D CHARACTER LAB</span>
-          <h2 class="sn-section-title">Showreel & Rigged 3D Avatar</h2>
-          <span class="sn-section-meta">AFTER EFFECTS · BLENDER 5.1 · WEBGPU</span>
+          <span class="sn-section-index">(02) — MOTION SHOWREEL</span>
+          <h2 class="sn-section-title">2026 Developer Trailer</h2>
         </header>
 
         <div class="sn-showcase-grid">
-          <!-- Left: Promotional Motion Showreel (Module 3) -->
           <div class="sn-panel">
             <div>
-              <p class="sn-panel-kicker">02A // PROMOTIONAL MOTION SHOWREEL (1080P · 46.8S · 116 BPM SYNTH-FUNK)</p>
               <h3 class="sn-panel-title">2026 Game & XR Developer Trailer</h3>
               <p class="sn-panel-copy">
-                High-contrast multi-screen game trailer featuring 2×2 simultaneous gameplay matrices, split-screen Unreal Engine 5 × C++/SFML showdowns, triple XR viewports, RGB chromatic glitch transitions, and original 116 BPM electro-funk audio.
+                Multi-screen game & XR showreel featuring 2×2 simultaneous gameplay matrices, split-screen Unreal Engine 5 × C++/SFML showdowns, and triple XR viewports.
               </p>
               <video class="sn-reel-video" id="sn-promo-video" controls preload="metadata" poster="/video/promo-poster.jpg" data-cursor="PLAY REEL">
                 <source src="/video/promo.mp4" type="video/mp4" />
               </video>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--sn-font-mono);font-size:11px;color:var(--sn-fg-muted)">
-              <span>SOURCE // VIDEO/PROMO.AEP + 9 COMPOSITED ACTS</span>
-              <span>AUDIO // 116 BPM FUNKY CYBER GROOVE</span>
-            </div>
-          </div>
-
-          <!-- Right: Custom Blender 5.1 3D Avatar Interactive Stage (Module 2) -->
-          <div class="sn-panel">
-            <div>
-              <p class="sn-panel-kicker">02B // CUSTOM BLENDER 5.1 RIGGED AVATAR (GLB + 6 NLA CLIPS + MORPH TARGETS)</p>
-              <h3 class="sn-panel-title">Interactive 3D Character & 3rd-Person Controller</h3>
-              <p class="sn-panel-copy">
-                Original stylized 3D character modeled, textured, rigged (21 bones + 3 facial shape keys: Blink, Smile, MouthOpen), and animated in Blender 5.1. Trigger skeletal NLA animations directly in the live WebGPU canvas below or enter 3rd-Person Walk Mode.
-              </p>
-
-              <div class="sn-avatar-stage-card">
-                <img class="sn-avatar-render" src="/images/ahmad-2.jpg" alt="Syed Muhammad Ahmad Reference" />
-                <div style="font-family:var(--sn-font-mono);font-size:11.5px;line-height:1.7;color:var(--sn-fg-muted)">
-                  <div><strong style="color:var(--sn-fg)">MODEL:</strong> /models/avatar.glb (Blender 5.1)</div>
-                  <div><strong style="color:var(--sn-fg)">RIG:</strong> 21 Bones · 6 NLA Animation Tracks</div>
-                  <div><strong style="color:var(--sn-fg)">MORPHS:</strong> Auto-Blink · Smile · AI Voice Lip-Sync</div>
-                  <div><strong style="color:var(--sn-fg)">LOCOMOTION:</strong> 3rd-Person Over-Shoulder Walk</div>
-                </div>
-              </div>
-
-              <div class="sn-avatar-controls">
-                <button type="button" class="sn-btn sn-btn--primary" data-avatar-action="focus">Focus 3D Camera on Avatar</button>
-                <button type="button" class="sn-btn" data-action="enter-3d-world">Walk in 3rd-Person (WASD) ↗</button>
-                <button type="button" class="sn-btn" data-avatar-anim="Walk">Walk Cycle</button>
-                <button type="button" class="sn-btn" data-avatar-anim="Wave">Wave</button>
-                <button type="button" class="sn-btn" data-avatar-anim="Talk">Talk Gesture</button>
-                <button type="button" class="sn-btn" data-avatar-anim="Point">Point / Present</button>
-                <button type="button" class="sn-btn" data-avatar-anim="Victory">Victory</button>
-                <button type="button" class="sn-btn" data-avatar-anim="Idle">Idle</button>
-                <button type="button" class="sn-btn" data-avatar-spin="left">↺ Rotate L</button>
-                <button type="button" class="sn-btn" data-avatar-spin="right">↻ Rotate R</button>
-              </div>
-            </div>
-
-            <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--sn-line);display:flex;justify-content:space-between;font-family:var(--sn-font-mono);font-size:11px;color:var(--sn-fg-muted)">
-              <span>SOURCE // BLENDER/AVATAR.BLEND</span>
-              <span>SHORTCUT // PRESS [V] IN 3D WALK FOR 1ST/3RD POV</span>
             </div>
           </div>
         </div>
@@ -380,7 +337,6 @@ export function createPortfolioUI({
         <header class="sn-section-header">
           <span class="sn-section-index">(03) — PROFILE & CAPABILITIES</span>
           <h2 class="sn-section-title">Biography, Stack & Timeline</h2>
-          <span class="sn-section-meta">KARACHI, PAKISTAN · NED UNIVERSITY ’27</span>
         </header>
 
         <div class="sn-about-top">
@@ -508,7 +464,6 @@ export function createPortfolioUI({
         <header class="sn-section-header">
           <span class="sn-section-index">(04) — INITIATE CONTACT</span>
           <h2 class="sn-section-title">Direct Transmission</h2>
-          <span class="sn-section-meta">ENCRYPTED API · HONEYPOT & RATE-LIMIT PROTECTED</span>
         </header>
 
         <div class="sn-contact-grid">
@@ -1017,13 +972,13 @@ export function createPortfolioUI({
   function scrollToSection(sectionKey) {
     exit3dWalkMode();
     const resolved = SECTION_ALIAS[sectionKey] || "works";
-    avatarFocusOverride = resolved === "lab";
+    avatarFocusOverride = false;
     const targetEl = scrollViewport.querySelector(`#sn-sec-${resolved}`);
     if (targetEl) {
-      const maxScroll = Math.max(0, scrollViewport.scrollHeight - scrollViewport.clientHeight);
-      virtualScrollTarget = clamp(targetEl.offsetTop, 0, maxScroll);
-      virtualScrollCurrent = scrollViewport.scrollTop;
-      isWheelSmoothing = true;
+      scrollViewport.scrollTo({
+        top: Math.max(0, targetEl.offsetTop - 8),
+        behavior: "smooth",
+      });
     }
     for (const link of topbar.querySelectorAll(".sn-nav-link")) {
       link.classList.toggle("is-active", link.dataset.navScroll === resolved);
@@ -1066,7 +1021,6 @@ export function createPortfolioUI({
       item.addEventListener("pointerenter", () => {
         hoveredProjectIndex = idx;
         avatarFocusOverride = false;
-        document.body.classList.add("sn-peeking-3d");
         const proj = projects[idx];
         if (!proj) return;
         hoverTitleEl.textContent = proj.title;
@@ -1092,7 +1046,6 @@ export function createPortfolioUI({
       item.addEventListener("pointerleave", () => {
         if (hoveredProjectIndex === idx) {
           hoveredProjectIndex = -1;
-          document.body.classList.remove("sn-peeking-3d");
           hoverPreview.classList.remove("is-visible");
           previewVideo.pause();
         }
@@ -1150,20 +1103,34 @@ export function createPortfolioUI({
     refreshWorksView();
   });
 
-  // Avatar interactive buttons
-  for (const btn of scrollViewport.querySelectorAll("[data-avatar-anim]")) {
-    btn.addEventListener("click", () => {
-      focusAvatarIn3D();
-      world?.avatar?.triggerGesture?.(btn.dataset.avatarAnim);
-    });
+  // Promo Video Auto-Duck / Pause Background Music so audio never overlaps
+  const promoVideoEl = scrollViewport.querySelector("#sn-promo-video");
+  let wasBgMusicPlayingBeforePromo = false;
+
+  promoVideoEl?.addEventListener("play", () => {
+    if (getIsMusicPlaying()) {
+      wasBgMusicPlayingBeforePromo = true;
+      appShell?.audioButton?.pause?.();
+      setTimeout(syncAudioBtnLabel, 60);
+    }
+  });
+
+  function onPromoStop() {
+    if (wasBgMusicPlayingBeforePromo) {
+      wasBgMusicPlayingBeforePromo = false;
+      appShell?.audioButton?.play?.()?.catch?.(() => {});
+      setTimeout(syncAudioBtnLabel, 60);
+    }
   }
-  for (const btn of scrollViewport.querySelectorAll("[data-avatar-action='focus']")) {
-    btn.addEventListener("click", () => focusAvatarIn3D());
-  }
-  for (const btn of scrollViewport.querySelectorAll("[data-avatar-spin]")) {
-    btn.addEventListener("click", () => {
-      const delta = btn.dataset.avatarSpin === "left" ? -0.6 : 0.6;
-      world?.avatar?.rotateBy?.(delta);
+
+  promoVideoEl?.addEventListener("pause", onPromoStop);
+  promoVideoEl?.addEventListener("ended", onPromoStop);
+
+  // 3D World Mode Gesture buttons (inside .sn-3d-return-bar where the character is 100% unobstructed)
+  for (const gBtn of returnBar.querySelectorAll("[data-3d-gesture]")) {
+    gBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      world?.avatar?.triggerGesture?.(gBtn.getAttribute("data-3d-gesture"));
     });
   }
 
@@ -1254,8 +1221,13 @@ export function createPortfolioUI({
       }
     } else if (action === "toggle-audio") {
       if (getIsMusicPlaying()) {
+        wasBgMusicPlayingBeforePromo = false;
         appShell?.audioButton?.pause?.();
       } else {
+        if (promoVideoEl && !promoVideoEl.paused) {
+          wasBgMusicPlayingBeforePromo = false;
+          promoVideoEl.pause();
+        }
         appShell?.audioButton?.play?.()?.catch?.(() => {});
       }
       setTimeout(syncAudioBtnLabel, 80);
@@ -1299,43 +1271,13 @@ export function createPortfolioUI({
   let lastScrollTop = 0;
   let scrollVelocity = 0;
   let smoothScrollNorm = 0;
-  let virtualScrollTarget = 0;
-  let virtualScrollCurrent = 0;
-  let isWheelSmoothing = false;
-  let previewX = window.innerWidth * 0.5;
+  let previewX = window.innerWidth * 0.65;
   let previewY = window.innerHeight * 0.5;
   let waveTime = 0;
-
-  // Desktop inertial wheel smooth scrolling
-  scrollViewport.addEventListener(
-    "wheel",
-    (e) => {
-      if (is3dWalkMode || activeCaseStudyIndex !== -1) return;
-      // Allow native scroll inside overflowing textarea
-      const ta = e.target?.closest?.("textarea");
-      if (ta && ta.scrollHeight > ta.clientHeight) {
-        return;
-      }
-      const maxScroll = Math.max(0, scrollViewport.scrollHeight - scrollViewport.clientHeight);
-      if (maxScroll <= 0) return;
-      e.preventDefault();
-      if (!isWheelSmoothing) {
-        virtualScrollTarget = scrollViewport.scrollTop;
-        virtualScrollCurrent = scrollViewport.scrollTop;
-        isWheelSmoothing = true;
-      }
-      virtualScrollTarget = clamp(virtualScrollTarget + e.deltaY * 0.95, 0, maxScroll);
-    },
-    { passive: false },
-  );
 
   scrollViewport.addEventListener(
     "scroll",
     () => {
-      if (!isWheelSmoothing) {
-        virtualScrollTarget = scrollViewport.scrollTop;
-        virtualScrollCurrent = scrollViewport.scrollTop;
-      }
       if (avatarFocusOverride) {
         avatarFocusOverride = false;
         document.body.classList.remove("sn-peeking-3d");
@@ -1362,8 +1304,8 @@ export function createPortfolioUI({
     waveTime += 0.065;
 
     // 1. Custom Magnetic Cursor & Velocity
-    pointer.curX = lerp(pointer.curX, pointer.x, 0.24);
-    pointer.curY = lerp(pointer.curY, pointer.y, 0.24);
+    pointer.curX = lerp(pointer.curX, pointer.x, 0.28);
+    pointer.curY = lerp(pointer.curY, pointer.y, 0.28);
     pointer.velX = pointer.curX - pointer.prevX;
     pointer.velY = pointer.curY - pointer.prevY;
     pointer.prevX = pointer.curX;
@@ -1373,15 +1315,7 @@ export function createPortfolioUI({
 
     cursor.style.transform = `translate3d(${pointer.curX.toFixed(1)}px, ${pointer.curY.toFixed(1)}px, 0)`;
 
-    // 2. Inertial Smooth Scroll & Scroll-Velocity Kinetic Typography Skew
-    if (isWheelSmoothing) {
-      virtualScrollCurrent = lerp(virtualScrollCurrent, virtualScrollTarget, 0.11);
-      scrollViewport.scrollTop = virtualScrollCurrent;
-      if (Math.abs(virtualScrollTarget - virtualScrollCurrent) < 0.5) {
-        scrollViewport.scrollTop = virtualScrollTarget;
-        isWheelSmoothing = false;
-      }
-    }
+    // 2. Scroll Progress & Scroll-Velocity Kinetic Typography Skew
     const maxScroll = Math.max(1, scrollViewport.scrollHeight - scrollViewport.clientHeight);
     const curScroll = scrollViewport.scrollTop;
     const rawVel = curScroll - lastScrollTop;
@@ -1391,19 +1325,23 @@ export function createPortfolioUI({
     smoothScrollNorm = lerp(smoothScrollNorm, targetScrollNorm, 0.08);
 
     if (heroHeadline && curScroll < window.innerHeight) {
-      const skew = clamp(scrollVelocity * -0.045, -4.5, 4.5);
+      const skew = clamp(scrollVelocity * -0.035, -3.5, 3.5);
       heroHeadline.style.transform = `skewY(${skew.toFixed(2)}deg)`;
     }
 
-    // 3. Floating 60fps Wave-Distortion Media Preview Canvas
+    // 3. Floating 60fps Media Preview Canvas (anchored to the right of the title column)
     if (hoveredProjectIndex !== -1) {
-      previewX = lerp(previewX, pointer.x + 28, 0.16);
-      previewY = lerp(previewY, pointer.y - 110, 0.16);
-      const rot = clamp(pointer.velX * 0.28, -9, 9);
-      const skewX = clamp(pointer.velX * 0.15, -6, 6);
-      hoverPreview.style.transform = `translate3d(${previewX.toFixed(1)}px, ${previewY.toFixed(1)}px, 0) rotate(${rot.toFixed(2)}deg) skewX(${skewX.toFixed(2)}deg) scale(1)`;
+      const targetPrevX = clamp(
+        Math.max(pointer.x + 42, window.innerWidth * 0.56),
+        320,
+        Math.max(340, window.innerWidth - 420),
+      );
+      const targetPrevY = clamp(pointer.y - 110, 82, Math.max(90, window.innerHeight - 250));
+      previewX = lerp(previewX, targetPrevX, 0.18);
+      previewY = lerp(previewY, targetPrevY, 0.18);
+      const rot = clamp(pointer.velX * 0.18, -5, 5);
+      hoverPreview.style.transform = `translate3d(${previewX.toFixed(1)}px, ${previewY.toFixed(1)}px, 0) rotate(${rot.toFixed(2)}deg) scale(1)`;
 
-      // Draw video or poster with horizontal wave-slice displacement proportional to cursor velocity
       const sourceMedia =
         previewVideo.readyState >= 2
           ? previewVideo
@@ -1414,8 +1352,8 @@ export function createPortfolioUI({
       if (sourceMedia && hoverCtx) {
         const cw = hoverCanvas.width;
         const ch = hoverCanvas.height;
-        const speed = Math.min(28, Math.hypot(pointer.velX, pointer.velY));
-        const slices = 18;
+        const speed = Math.min(18, Math.hypot(pointer.velX, pointer.velY));
+        const slices = 16;
         const sliceH = ch / slices;
         const srcW = sourceMedia.videoWidth || sourceMedia.naturalWidth || cw;
         const srcH = sourceMedia.videoHeight || sourceMedia.naturalHeight || ch;
@@ -1423,7 +1361,7 @@ export function createPortfolioUI({
 
         hoverCtx.clearRect(0, 0, cw, ch);
         for (let i = 0; i < slices; i++) {
-          const wave = Math.sin(waveTime + i * 0.45) * (1.2 + speed * 0.42);
+          const wave = Math.sin(waveTime + i * 0.45) * (0.4 + speed * 0.22);
           hoverCtx.drawImage(
             sourceMedia,
             0,
@@ -1436,36 +1374,14 @@ export function createPortfolioUI({
             sliceH + 0.8,
           );
         }
-
-        // Subtle scanline & velocity RGB chromatic edge tint
-        if (speed > 1.5) {
-          hoverCtx.fillStyle = `rgba(221, 251, 36, ${Math.min(0.14, speed * 0.006)})`;
-          hoverCtx.fillRect(0, 0, cw, 3);
-        }
       }
     }
 
-    // 4. 3D WebGPU Camera Choreography (Scroll Spline + Mouse Parallax + Hover Project Screen Focus)
+    // 4. 3D WebGPU Camera Choreography (Smooth Scroll Spline + Mouse Parallax)
     if (!is3dWalkMode && !avatarFocusOverride && camera && cameraDirector) {
-      let desiredPos;
-      let desiredTarget;
-
-      const hoveredScreen =
-        hoveredProjectIndex >= 0
-          ? world?.projectScreens?.screenEntries?.[hoveredProjectIndex]
-          : null;
-
-      if (hoveredScreen) {
-        // Glide 3D WebGPU camera to frame the hovered project's live 3D holographic kiosk in the alley
-        const wp = hoveredScreen.worldPos;
-        const zSide = wp.z < 31.5 ? 4.4 : -4.4;
-        desiredPos = [wp.x - 1.2, wp.y + 0.15, wp.z + zSide];
-        desiredTarget = [wp.x, wp.y + 0.1, wp.z];
-      } else {
-        const sampled = sampleCameraPath(smoothScrollNorm);
-        desiredPos = sampled.pos;
-        desiredTarget = sampled.target;
-      }
+      const sampled = sampleCameraPath(smoothScrollNorm);
+      const desiredPos = sampled.pos;
+      const desiredTarget = sampled.target;
 
       // Add smooth mouse-reactive parallax offset
       const px = desiredPos[0] + pointer.smoothNdcY * 0.45;
