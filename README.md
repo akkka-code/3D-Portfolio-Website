@@ -33,53 +33,27 @@ A full-stack interactive 3D web portfolio showcasing the personal profile, techn
 
 ## Setup & Installation Instructions
 
-### 1. Prerequisites
+### Prerequisites
 - **Node.js** `>= 20` and `npm`
 - A modern browser with **WebGPU** support (Chrome, Edge, or Firefox Nightly / Safari TP)
 - *(Optional, for rebuilding 3D/video assets from scratch)*: **Blender 5.1**, **Python 3.10+**, **Adobe After Effects**
 
-### 2. Install Dependencies
+### Install Dependencies
 ```bash
 npm install
 ```
-
-### 3. Configure Environment Variables
-Copy `.env.example` to `.env` and fill in your keys:
-```bash
-cp .env.example .env
-```
-- `GEMINI_API_KEY`: Your Google AI Studio API key (for RAG embeddings & chat generation).
-- `RESEND_API_KEY`: Your Resend API key (`re_...`) for contact form email delivery.
-- `CONTACT_TO_EMAIL`: Recipient inbox (`ahmedakka765@gmail.com`).
-- `CONTACT_FROM_EMAIL`: Verified sender (`Portfolio Contact <onboarding@resend.dev>`).
-
-### 4. Build the RAG Vector Index
-Whenever you edit `content/profile.json` or drop new `.md`/`.pdf` files into `knowledge/`:
-```bash
-npm run ingest
-```
-This chunks all documents, generates 768-dimensional Gemini embeddings, and writes `data/vector-index.json`.
-
-### 5. Run Locally (HTTPS Dev Server + Local `/api/*` Endpoints)
+### Run Locally (HTTPS Dev Server + Local `/api/*` Endpoints)
 ```bash
 npm run dev
 ```
 Vite starts an HTTPS server (required for WebGPU) and mounts both `/api/chat` and `/api/contact` locally.
 
-### 6. Production Build & Verification
+### Production Build & Verification
 ```bash
 npm run build
 npm run test:api
 ```
-
-### 7. Deploy to Vercel
-```bash
-npx vercel --prod
-```
-Ensure `GEMINI_API_KEY`, `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `CONTACT_FROM_EMAIL` are added in **Vercel Project Settings → Environment Variables**.
-
 ---
-
 ## Credits
 - **Portfolio Owner & Game Developer**: Syed Muhammad Ahmad (AKKA)
 - **3D Alley Base Technique**: Inspired by *Threejs-Punk* (Anderson Mancini & Sunag, TSL Workshop 2026)

@@ -171,68 +171,76 @@ def build_case_study_overlay(filename, idx_str, category, year, title, summary, 
 
 def main():
     # =========================================================================
-    # ACT 1: Editorial Hero Statement (Exact samsy.ninja Hero Typography & Grid)
+    # ACT 1: Editorial Showreel Cover & Title Lockup (Reveals 2x2 Gameplay Matrix)
     # =========================================================================
     img1 = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw1 = ImageDraw.Draw(img1)
     # Architectural 2x2 grid hairlines over the 4-game live backdrop
-    draw1.line([(W // 2, 62), (W // 2, H - 52)], fill=LINE_OPAQUE, width=1)
-    draw1.line([(0, H // 2), (W, H // 2)], fill=LINE_OPAQUE, width=1)
-    draw_editorial_chrome(draw1, section_tag="(00) — CREATIVE TECHNOLOGIST & GAME ARCHITECT")
+    draw1.line([(W // 2, 62), (W // 2, H - 52)], fill=LINE_OPAQUE, width=2)
+    draw1.line([(0, H // 2), (W, H // 2)], fill=LINE_OPAQUE, width=2)
+    draw_editorial_chrome(draw1, section_tag="(02) — 2026 GAME & XR DEVELOPER SHOWREEL")
 
-    # Main editorial hero frame
-    draw_editorial_box(draw1, 88, 128, 1744, 824, fill=BG_ELEV, border=LINE_OPAQUE, accent_stub=True)
-    paste_editorial_image(
-        img1,
-        "public/images/ahmad-2.jpg",
-        1310,
-        172,
-        472,
-        590,
-        caption_left="SYED MUHAMMAD AHMAD",
-        caption_right="[AKKA®]",
+    # Quadrant index badges in the 4 outer corners so all 4 live game viewports are framed & visible
+    quad_labels = [
+        (36, 84, "001 // CHRONO REBELLION", "UNITY HDRP · SCI-FI FPS/TPS"),
+        (W - 372, 84, "002 // PAPER PLANE DASH", "UNREAL ENGINE 5 · FLIGHT"),
+        (36, H - 134, "003 // BEHIND THE SMILE", "GLOBAL GAME JAM 2026 · 3D"),
+        (W - 372, H - 134, "004 // MINECRAFT CLONE", "PROCEDURAL VOXEL ENGINE"),
+    ]
+    for qx, qy, qtitle, qsub in quad_labels:
+        draw_editorial_box(draw1, qx, qy, 336, 62, fill=(13, 13, 18, 220), border=LINE_OPAQUE, accent_stub=True)
+        draw1.text((qx + 16, qy + 11), qtitle, font=get_font(14, bold=True), fill=FG)
+        draw1.text((qx + 16, qy + 33), qsub, font=get_font(12, mono=True), fill=ACCENT)
+
+    # Compact centered architectural title card (lets the 4 gameplay quadrants shine around it)
+    cx_box, cy_box, cw_box, ch_box = 340, 290, 1240, 500
+    draw_editorial_box(
+        draw1,
+        cx_box,
+        cy_box,
+        cw_box,
+        ch_box,
+        fill=(10, 10, 14, 232),
+        border=LINE_OPAQUE,
+        accent_stub=True,
     )
 
-    f_hero = get_font(86, bold=True)
-    draw1.text((140, 172), "SYED MUHAMMAD", font=f_hero, fill=FG)
-    draw1.text((140, 268), "AHMAD — AKKA®", font=f_hero, fill=ACCENT)
-    draw_outline_text(draw1, (140, 364), "INTERACTIVE 3D &", font=f_hero, stroke_color=FG, stroke_width=2)
-    draw1.text((140, 460), "GAME ARCHITECT.", font=f_hero, fill=FG)
-
-    # Architectural bottom 2-column grid inside hero
-    draw1.line([(140, 588), (1265, 588)], fill=LINE_OPAQUE, width=1)
+    # Top eyebrow bar inside center card
+    draw1.rectangle([cx_box + 48, cy_box + 42, cx_box + 388, cy_box + 74], fill=ACCENT)
     draw1.text(
-        (140, 614),
-        "I build immersive games, procedural 3D worlds, and XR simulations with Unity,",
-        font=get_font(23, bold=False),
-        fill=FG,
+        (cx_box + 62, cy_box + 50),
+        "SHOWREEL 2026 // 09 SELECTED WORKS",
+        font=get_font(15, mono=True),
+        fill=(7, 7, 10, 255),
     )
     draw1.text(
-        (140, 646),
-        "Unreal Engine 5, C++, and real-time WebGPU shaders. Final-year BS CS & IT",
-        font=get_font(23, bold=False),
+        (cx_box + cw_box - 48, cy_box + 50),
+        "AKKA® // KARACHI, PK",
+        font=get_font(15, mono=True),
         fill=FG_MUTED,
-    )
-    draw1.text(
-        (140, 678),
-        "(Gaming & Animation) at NED University & Game Dev Intern at Aerox ERP.",
-        font=get_font(23, bold=False),
-        fill=FG_MUTED,
+        anchor="ra",
     )
 
-    # 3 Metrics cells
-    metrics = [("08+", "SHIPPED GAMES"), ("UNITY · UE5", "CORE ENGINES"), ("GGJ 2026", "GAME JAM TEAM")]
-    for idx, (mval, mlbl) in enumerate(metrics):
-        mx = 140 + idx * 240
-        draw1.line([(mx, 738), (mx, 815)], fill=LINE_OPAQUE, width=1)
-        draw1.text((mx + 16, 740), mval, font=get_font(30, bold=True), fill=FG)
-        draw1.text((mx + 16, 782), mlbl, font=get_font(13, mono=True), fill=FG_MUTED)
+    f_cover_main = get_font(74, bold=True)
+    f_cover_sub = get_font(56, bold=True)
+    draw1.text((cx_box + 48, cy_box + 104), "SYED MUHAMMAD AHMAD", font=f_cover_main, fill=FG)
+    draw_outline_text(
+        draw1,
+        (cx_box + 48, cy_box + 194),
+        "GAME & XR DEVELOPER",
+        font=f_cover_main,
+        stroke_color=ACCENT,
+        stroke_width=2,
+    )
+    draw1.text((cx_box + 48, cy_box + 286), "INTERACTIVE 3D ARCHITECT.", font=f_cover_sub, fill=FG)
 
+    # Hairline divider + engine/tool matrix strip
+    draw1.line([(cx_box + 48, cy_box + 378), (cx_box + cw_box - 48, cy_box + 378)], fill=LINE_OPAQUE, width=1)
     draw_hairline_tags(
         draw1,
-        140,
-        856,
-        ["SELECTED WORKS (09)", "UNITY HDRP", "UNREAL ENGINE 5", "C++ / C# / PYTHON", "OPENXR / VUFORIA", "BLENDER 5.1", "WEBGPU"],
+        cx_box + 48,
+        cy_box + 408,
+        ["UNITY 3D / HDRP", "UNREAL ENGINE 5", "C++ / C# / PYTHON", "OPENXR / VUFORIA", "BLENDER 5.1", "THREE.JS WEBGPU"],
         highlight_first=True,
     )
     img1.save(os.path.join(OUT_DIR, "hud_scene1_intro.png"))
@@ -421,7 +429,6 @@ def main():
     rows = [
         ("LIVE DEPLOYMENT", "syed-muhammad-ahmad-portfolio.vercel.app"),
         ("DIRECT EMAIL", "ahmedakka765@gmail.com"),
-        ("PHONE / WHATSAPP", "+92 332 2669028"),
         ("LINKEDIN", "linkedin.com/in/syed-muhammad-ahmad-55b240284"),
         ("EDUCATION", "BS CS & IT (Gaming & Animation) · NED University"),
     ]

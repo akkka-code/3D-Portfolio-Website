@@ -319,11 +319,8 @@ export function createPortfolioUI({
           <div class="sn-panel">
             <div>
               <h3 class="sn-panel-title">2026 Game & XR Developer Trailer</h3>
-              <p class="sn-panel-copy">
-                Multi-screen game & XR showreel featuring 2×2 simultaneous gameplay matrices, split-screen Unreal Engine 5 × C++/SFML showdowns, and triple XR viewports.
-              </p>
-              <video class="sn-reel-video" id="sn-promo-video" controls preload="metadata" poster="/video/promo-poster.jpg" data-cursor="PLAY REEL">
-                <source src="/video/promo.mp4" type="video/mp4" />
+              <video class="sn-reel-video" id="sn-promo-video" controls preload="none" poster="/video/promo-poster.jpg?v=20261120d" data-cursor="PLAY REEL">
+                <source src="/video/promo.mp4?v=20261120d" type="video/mp4" />
               </video>
             </div>
           </div>
@@ -478,10 +475,6 @@ export function createPortfolioUI({
             <div class="sn-direct-links">
               <a class="sn-direct-link" href="mailto:${escapeHtml(profile.email)}" data-cursor="EMAIL">
                 <span>EMAIL // ${escapeHtml(profile.email)}</span>
-                <span>↗</span>
-              </a>
-              <a class="sn-direct-link" href="tel:+923322669028" data-cursor="CALL">
-                <span>PHONE // +92 332 2669028</span>
                 <span>↗</span>
               </a>
               <a class="sn-direct-link" href="${escapeHtml(profile.socials?.linkedin || "#")}" target="_blank" rel="noopener" data-cursor="LINKEDIN">

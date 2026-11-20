@@ -395,7 +395,7 @@
         addKineticText("LET’S BUILD THE NEXT IMMERSIVE WORLD.", 44, COL_FG, [W / 2, 455], 41.88, 46.6, ParagraphJustification.CENTER_JUSTIFY, false, true);
 
         addHairlineRule("Act9_MidLine", W / 2, 535, 920, 1, COL_LINE, 41.95, 46.6, false);
-        addKineticText("ahmedakka765@gmail.com   ·   +92 332 2669028", 28, COL_FG, [W / 2, 610], 42.02, 46.6, ParagraphJustification.CENTER_JUSTIFY, true, false);
+        addKineticText("ahmedakka765@gmail.com   ·   linkedin.com/in/syed-muhammad-ahmad-55b240284", 24, COL_FG, [W / 2, 610], 42.02, 46.6, ParagraphJustification.CENTER_JUSTIFY, true, false);
         addKineticText("syed-muhammad-ahmad-portfolio.vercel.app", 24, COL_ACCENT, [W / 2, 675], 42.10, 46.6, ParagraphJustification.CENTER_JUSTIFY, true, false);
         addKineticText("NED UNIVERSITY OF ENGINEERING & TECHNOLOGY · KARACHI, PAKISTAN", 18, COL_MUTED, [W / 2, 745], 42.18, 46.6, ParagraphJustification.CENTER_JUSTIFY, true, false);
 
