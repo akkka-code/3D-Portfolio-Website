@@ -1,5 +1,7 @@
 # Syed Muhammad Ahmad (AKKA) — Interactive 3D WebGPU Portfolio
 
+**Live Portfolio URL:** [https://syed-muhammad-ahmad-portfolio.vercel.app/](https://syed-muhammad-ahmad-portfolio.vercel.app/)
+
 ![Promotional Video Poster](./public/video/promo-poster.jpg)
 
 A full-stack interactive 3D web portfolio showcasing the personal profile, technical skills, academic game projects, and professional achievements of **Syed Muhammad Ahmad (AKKA)** — Game Developer, Game Programmer, and Graphic Designer (BS CS & IT — Gaming & Animation at **NED University of Engineering & Technology**).

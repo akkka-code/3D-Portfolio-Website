@@ -145,7 +145,7 @@ export default async function handler(req, res) {
         ok: true,
         id: result.id,
         provider: "resend",
-        message: `Thanks ${data.name.split(" ")[0]}! Your message has been delivered — I'll reply soon.`,
+        message: `Thanks ${data.name.split(" ")[0]}! Your message has been delivered`,
       });
     } catch (error) {
       console.error("[contact] Resend send failed:", error.message);
@@ -170,7 +170,7 @@ export default async function handler(req, res) {
       return sendJson(res, 200, {
         ok: true,
         provider: "web3forms",
-        message: `Thanks ${data.name.split(" ")[0]}! Your message has been delivered — I'll reply soon.`,
+        message: `Thanks ${data.name.split(" ")[0]}! Your message has been delivered.`,
       });
     } catch (error) {
       console.error("[contact] Web3Forms send failed:", error.message);
