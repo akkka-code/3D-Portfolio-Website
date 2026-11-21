@@ -57,7 +57,18 @@ const cBad = await callHandler(contactHandler, {
 });
 console.log("Invalid payload status (expected 422):", cBad.status, cBad.data.errors);
 
-console.log("\n=== 4. Testing Valid Contact Submission ===");
+console.log("\n=== 4. Testing Contact Endpoint Unconfigured Guard & Dry-Run ===");
+const cUnconf = await callHandler(contactHandler, {
+  name: "Ada Lovelace",
+  email: "ada@analytical-engine.org",
+  subject: "Game Development Collaboration",
+  message: "Hi Ahmad, I explored your 3D WebGPU portfolio and loved Chrono Rebellion!",
+  startedAt: Date.now() - 12000,
+  website: "",
+});
+console.log("Unconfigured status (expected 503 when no API key, or 200 with key):", cUnconf.status, cUnconf.data);
+
+process.env.CONTACT_DRY_RUN = "1";
 const cGood = await callHandler(contactHandler, {
   name: "Ada Lovelace",
   email: "ada@analytical-engine.org",
@@ -66,7 +77,7 @@ const cGood = await callHandler(contactHandler, {
   startedAt: Date.now() - 12000,
   website: "",
 });
-console.log("Valid payload status (expected 200):", cGood.status, cGood.data);
+console.log("Dry-run valid payload status (expected 200):", cGood.status, cGood.data);
 if (cBad.status !== 422 || cGood.status !== 200 || !q1.data.ok) {
   process.exit(1);
 }

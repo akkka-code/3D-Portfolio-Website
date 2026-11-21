@@ -301,7 +301,6 @@ async function init(loaderOverlay) {
     await deferredCompile;
   }
 
-  // Inspector attaches only via Development Mode (never on load).
   inspectorSession.bootstrapInspector(appShell.settingsPanel);
 
   if (isDevelopmentModeEnabled()) {

@@ -65,6 +65,30 @@ export async function sendWithResend({ to, from, replyTo, subject, html, text })
   return body; // { id }
 }
 
+export async function sendWithWeb3Forms({ accessKey, name, email, subject, message }) {
+  const response = await fetch("https://api.web3forms.com/submit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      access_key: accessKey,
+      name,
+      email,
+      subject: `[Portfolio] ${subject}`.slice(0, 150),
+      message,
+    }),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body?.success) {
+    const err = new Error(body?.message || `Web3Forms error ${response.status}`);
+    err.status = response.status;
+    throw err;
+  }
+  return body;
+}
+
 export default async function handler(req, res) {
   if (!methodGuard(req, res, "POST")) return;
 
@@ -89,7 +113,6 @@ export default async function handler(req, res) {
 
   const { valid, errors, data, spam } = validateContact(body);
 
-  // Silently "succeed" for bots so they don't learn what triggered the filter.
   if (spam.honeypot || spam.tooFast || spam.noTimestamp) {
     console.warn("[contact] spam blocked", { ip, ...spam });
     return sendJson(res, 200, { ok: true, message: "Thanks! Your message has been sent." });
@@ -101,44 +124,87 @@ export default async function handler(req, res) {
 
   const to = process.env.CONTACT_TO_EMAIL || "ahmedakka765@gmail.com";
   const from = process.env.CONTACT_FROM_EMAIL || "Portfolio Contact <onboarding@resend.dev>";
-  const apiKey = process.env.RESEND_API_KEY || "";
-  const hasRealResendKey = Boolean(apiKey && !apiKey.startsWith("re_your_"));
+  const resendKey = (process.env.RESEND_API_KEY || "").trim();
+  const hasRealResendKey = Boolean(resendKey && !resendKey.startsWith("re_your_"));
+  const web3FormsKey = (process.env.WEB3FORMS_ACCESS_KEY || "").trim();
+  const hasRealWeb3FormsKey = Boolean(web3FormsKey && !web3FormsKey.startsWith("your_"));
 
   const { html, text } = buildEmail(data, { ip, time: new Date().toISOString() });
 
-  if (!hasRealResendKey) {
-    console.info("[contact] Verified transmission logged (RESEND_API_KEY not configured):", {
+  if (hasRealResendKey) {
+    try {
+      const result = await sendWithResend({
+        to,
+        from,
+        replyTo: data.email,
+        subject: `[Portfolio] ${data.subject}`.slice(0, 150),
+        html,
+        text,
+      });
+      return sendJson(res, 200, {
+        ok: true,
+        id: result.id,
+        provider: "resend",
+        message: `Thanks ${data.name.split(" ")[0]}! Your message has been delivered — I'll reply soon.`,
+      });
+    } catch (error) {
+      console.error("[contact] Resend send failed:", error.message);
+      return sendJson(res, 502, {
+        ok: false,
+        code: "PROVIDER_ERROR",
+        to,
+        error: `Email delivery failed (${error.message}). Please try again or email ${to} directly.`,
+      });
+    }
+  }
+
+  if (hasRealWeb3FormsKey) {
+    try {
+      await sendWithWeb3Forms({
+        accessKey: web3FormsKey,
+        name: data.name,
+        email: data.email,
+        subject: data.subject,
+        message: data.message,
+      });
+      return sendJson(res, 200, {
+        ok: true,
+        provider: "web3forms",
+        message: `Thanks ${data.name.split(" ")[0]}! Your message has been delivered — I'll reply soon.`,
+      });
+    } catch (error) {
+      console.error("[contact] Web3Forms send failed:", error.message);
+      return sendJson(res, 502, {
+        ok: false,
+        code: "PROVIDER_ERROR",
+        to,
+        error: `Email delivery failed (${error.message}). Please try again or email ${to} directly.`,
+      });
+    }
+  }
+
+  // Only allow dry-run success during automated test runs (scripts/test-api.mjs)
+  if (process.env.CONTACT_DRY_RUN === "1") {
+    console.info("[contact] Dry-run validated (CONTACT_DRY_RUN=1):", {
       to,
       from: `${data.name} <${data.email}>`,
       subject: data.subject,
     });
     return sendJson(res, 200, {
       ok: true,
-      id: `relay_${Date.now()}`,
-      mode: "logged",
-      message: `Thanks ${data.name.split(" ")[0]}! Your message has been received for ${to} — I'll reply soon.`,
+      id: `dryrun_${Date.now()}`,
+      mode: "dry_run",
+      message: `Dry-run validated for ${to}.`,
     });
   }
 
-  try {
-    const result = await sendWithResend({
-      to,
-      from,
-      replyTo: data.email,
-      subject: `[Portfolio] ${data.subject}`.slice(0, 150),
-      html,
-      text,
-    });
-    return sendJson(res, 200, {
-      ok: true,
-      id: result.id,
-      message: `Thanks ${data.name.split(" ")[0]}! Your message has been delivered — I'll reply soon.`,
-    });
-  } catch (error) {
-    console.error("[contact] send failed:", error.message);
-    return sendJson(res, 502, {
-      ok: false,
-      error: "Sorry, the message could not be sent right now. Please try again later.",
-    });
-  }
+  // Never falsely report success when no server email provider key is configured!
+  console.warn("[contact] No email API key configured (set RESEND_API_KEY or WEB3FORMS_ACCESS_KEY).");
+  return sendJson(res, 503, {
+    ok: false,
+    code: "EMAIL_PROVIDER_UNCONFIGURED",
+    relay: "formsubmit",
+    to,
+    error: "Server email API key is not configured yet — attempting direct email relay.",
+  });
 }

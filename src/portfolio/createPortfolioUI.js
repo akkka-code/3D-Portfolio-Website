@@ -5,10 +5,6 @@ import { validateContact, escapeHtml } from "../../shared/validation.js";
 import { AVATAR_START } from "../world/avatar/loadAvatar.js";
 import { getIsMusicPlaying } from "../audio/audioState.js";
 
-/**
- * Curated 3D WebGPU camera waypoints along the cyberpunk alley for scroll choreography
- * when in samsy.ninja Editorial Index Mode.
- */
 const SCROLL_CAMERA_WAYPOINTS = [
   // 0.00 — Hero: Iconic low-angle framing over the wet Quadra car toward the 3D Avatar & neon alley
   { pos: [-137.4, -3.85, 33.6], target: [-122.0, -3.35, 31.2] },
@@ -69,7 +65,7 @@ export function createPortfolioUI({
   let is3dWalkMode = false;
   let activeCategory = "All";
   let projectSearch = "";
-  let worksViewMode = "list"; // "list" (samsy.ninja interactive index) | "grid"
+  let worksViewMode = "list"; 
   let activeCaseStudyIndex = -1;
   let hoveredProjectIndex = -1;
   let avatarFocusOverride = false;
@@ -540,9 +536,7 @@ export function createPortfolioUI({
     </div>
   `;
 
-  // ---------------------------------------------------------------------------
-  // 3. Floating 60fps Mouse-Reactive Distortion Video Preview (.sn-hover-preview)
-  // ---------------------------------------------------------------------------
+ 
   const hoverPreview = document.createElement("div");
   hoverPreview.className = "sn-hover-preview";
   hoverPreview.innerHTML = `
@@ -1160,6 +1154,18 @@ export function createPortfolioUI({
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Transmitting...";
+
+    const buildMailtoHref = (targetEmail) => {
+      const subject = `[Portfolio] ${check.data.subject}`;
+      const bodyText = `From: ${check.data.name} <${check.data.email}>\n\n${check.data.message}`;
+      return `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+    };
+
+    const showFallbackError = (msg, targetEmail) => {
+      statusEl.className = "sn-form-status is-error";
+      statusEl.innerHTML = `${escapeHtml(msg)} <a href="${buildMailtoHref(targetEmail)}" style="color:inherit;text-decoration:underline;font-weight:700;margin-left:6px">Open in Email App ↗</a>`;
+    };
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -1172,6 +1178,51 @@ export function createPortfolioUI({
         statusEl.textContent = data.message || "TRANSMISSION DELIVERED // Thank you for reaching out.";
         contactForm.reset();
         contactForm.querySelector('input[name="startedAt"]').value = String(Date.now());
+      } else if (data.code === "EMAIL_PROVIDER_UNCONFIGURED" && data.relay === "formsubmit") {
+        // Server validated input & spam guards, but RESEND_API_KEY is not set yet.
+        // Relay live from the visitor's browser via FormSubmit AJAX so real email arrives!
+        const targetEmail = data.to || profile.email || "ahmedakka765@gmail.com";
+        try {
+          const fsRes = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              name: check.data.name,
+              email: check.data.email,
+              _replyto: check.data.email,
+              _subject: `[Portfolio] ${check.data.subject}`,
+              message: check.data.message,
+              _template: "table",
+              _captcha: "false",
+            }),
+          });
+          const fsData = await fsRes.json().catch(() => ({}));
+          const delivered = fsRes.ok && (fsData.success === true || fsData.success === "true");
+          if (delivered) {
+            statusEl.className = "sn-form-status is-success";
+            statusEl.textContent = `Thanks ${check.data.name.split(" ")[0]}! Your message has been delivered to ${targetEmail} — I'll reply soon.`;
+            contactForm.reset();
+            contactForm.querySelector('input[name="startedAt"]').value = String(Date.now());
+          } else if (/activat/i.test(String(fsData.message || ""))) {
+            showFallbackError(
+              `ACTIVATION REQUIRED // FormSubmit sent a 1-click "Activate Form" email to ${targetEmail}. Click it once in your inbox (or add RESEND_API_KEY in Vercel) so emails deliver automatically.`,
+              targetEmail,
+            );
+          } else {
+            showFallbackError(
+              `EMAIL NOT DELIVERED // ${fsData.message || "Email relay could not deliver from this origin. Configure RESEND_API_KEY in .env / Vercel, or send directly:"}`,
+              targetEmail,
+            );
+          }
+        } catch {
+          showFallbackError(
+            `EMAIL NOT DELIVERED // Could not reach email relay (configure RESEND_API_KEY in .env / Vercel).`,
+            targetEmail,
+          );
+        }
       } else {
         if (data.errors) {
           for (const [k, msg] of Object.entries(data.errors)) {
@@ -1179,12 +1230,10 @@ export function createPortfolioUI({
             if (el) el.textContent = msg;
           }
         }
-        statusEl.className = "sn-form-status is-error";
-        statusEl.textContent = data.error || "TRANSMISSION FAILED // Please try again.";
+        showFallbackError(data.error || "TRANSMISSION FAILED // Please try again.", data.to || profile.email);
       }
     } catch {
-      statusEl.className = "sn-form-status is-error";
-      statusEl.textContent = "NETWORK ERROR // Unable to reach transmission endpoint.";
+      showFallbackError("NETWORK ERROR // Unable to reach transmission endpoint.", profile.email);
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Send Transmission ↗";
@@ -1402,7 +1451,6 @@ export function createPortfolioUI({
     }
   }
 
-  // Mount DOM
   root.appendChild(vignette);
   root.appendChild(topbar);
   root.appendChild(returnBar);
@@ -1415,7 +1463,6 @@ export function createPortfolioUI({
 
   bindWorksInteractions();
 
-  // Staggered Hero & Section Entry Animations
   gsap.from(scrollViewport.querySelectorAll(".sn-hero-line"), {
     yPercent: 105,
     opacity: 0,
