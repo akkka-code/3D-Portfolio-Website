@@ -714,7 +714,6 @@ export function createPortfolioUI({
 
     <div class="sn-chat-prompts">
       <button type="button" class="sn-prompt-chip" data-q="What games has Ahmad built in Unity and Unreal Engine 5?">Games built ↗</button>
-      <button type="button" class="sn-prompt-chip" data-q="Tell me about Chrono Rebellion and Behind the Smile.">Chrono & GGJ26 ↗</button>
       <button type="button" class="sn-prompt-chip" data-q="What are Ahmad's technical skills and certifications?">Skills & Certs ↗</button>
       <button type="button" class="sn-prompt-chip" data-q="Where does Ahmad study and work?">Education & Work ↗</button>
     </div>
