@@ -693,8 +693,7 @@ export function createPortfolioUI({
   chat.innerHTML = `
     <header class="sn-chat-header">
       <div>
-        <h3 class="sn-chat-title">◈ AHMAD.AI // RAG KNOWLEDGE TERMINAL</h3>
-        <p class="sn-chat-sub">Grounded in CV, 9 Projects & Academic Records · Source Citations</p>
+        <h3 class="sn-chat-title">◈ AHMAD.AI </h3>
       </div>
       <div class="sn-chat-controls">
         <select class="sn-chat-lang" id="sn-chat-lang" aria-label="Response language">
