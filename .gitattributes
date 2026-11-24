@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+*.aep filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+*.blend1 filter=lfs diff=lfs merge=lfs -text
+video/*.mp4 filter=lfs diff=lfs merge=lfs -text
+video/music/*.wav filter=lfs diff=lfs merge=lfs -text
